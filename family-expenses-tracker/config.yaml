@@ -1,6 +1,6 @@
 name: "Family Expenses Tracker"
 description: "A simple family expenses tracker addon."
-version: "0.0.1"
+version: "0.1.0"
 slug: "family_expenses_tracker"
 init: false
 arch:
@@ -12,3 +12,7 @@ map:
   - share:rw
 options: {}
 schema: {}
+ingress: true
+ingress_port: 8000
+panel_icon: mdi:finance
+panel_title: Family Expenses
