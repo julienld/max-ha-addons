@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.10
+
+- Fixed broken HTML syntax in "Add Member" button.
+
 ## 0.1.9
 
 - Fixed API calls failing in Ingress by using relative paths (e.g., `users/` instead of `/users/`).
