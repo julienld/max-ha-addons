@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.6
+
+- Aggressively fixed UI contrast using explicit Tailwind classes for dark mode inputs.
+
 ## 0.1.5
 
 - Improved UI contrast and dark mode support (Fix "black on black" issues).

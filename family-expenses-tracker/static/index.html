@@ -39,10 +39,10 @@
                     Family Members
                 </h2>
                 <div class="flex gap-2">
-                    <input type="text" x-model="newUserName" placeholder="Name" class="px-4 py-2 rounded-lg text-sm"
-                        @keydown.enter="createUser">
-                    <button @click="createUser" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">Add
-                        Member</button>
+                    <input type="text" x-model="newUserName" placeholder="Name"
+                        class="px-4 py-2 rounded-lg text-sm bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400"
+                        <button @click="createUser" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">Add
+                    Member</button>
                 </div>
             </div>
 
@@ -79,11 +79,13 @@
                 </h2>
                 <div class="flex gap-2">
                     <input type="text" x-model="newAccountName" placeholder="Account Name"
-                        class="px-4 py-2 rounded-lg text-sm w-40" @keydown.enter="createAccount">
-                    <select x-model="newAccountUserId" class="px-4 py-2 rounded-lg text-sm w-40">
-                        <option value="">Select Owner</option>
+                        class="px-4 py-2 rounded-lg text-sm w-40 bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400"
+                        @keydown.enter="createAccount">
+                    <select x-model="newAccountUserId"
+                        class="px-4 py-2 rounded-lg text-sm w-40 bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="" class="bg-slate-800 text-white">Select Owner</option>
                         <template x-for="user in users" :key="user.id">
-                            <option :value="user.id" x-text="user.name"></option>
+                            <option :value="user.id" x-text="user.name" class="bg-slate-800 text-white"></option>
                         </template>
                     </select>
                     <button @click="createAccount" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">Add
