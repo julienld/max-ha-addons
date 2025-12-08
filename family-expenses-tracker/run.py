@@ -1,8 +1,21 @@
 from fastapi import FastAPI
 import uvicorn
-import os
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+from database import create_db_and_tables
+from routers import users, accounts
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    create_db_and_tables()
+    yield
+    # Shutdown
+
+app = FastAPI(lifespan=lifespan)
+
+app.include_router(users.router)
+app.include_router(accounts.router)
 
 @app.get("/")
 def read_root():

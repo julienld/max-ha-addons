@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Added `sqlmodel` database support.
+- Added API endpoints for `Users` and `Accounts`.
+
 ## 0.1.2
 
 - Fixed Docker build error by allowing system package breaking (PEP 668).
