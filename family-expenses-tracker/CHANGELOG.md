@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+- Added **Subcategories** support (nested categories).
+- Added **Database Seeding** (auto-populates default categories like Food, Housing, etc.).
+- Added **Edit/Rename** feature for Members, Accounts, and Categories.
+
 ## 0.2.0
 
 - Added **Shared Accounts** support (Family/Joint accounts).

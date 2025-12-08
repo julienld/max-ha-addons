@@ -49,16 +49,42 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <template x-for="user in users" :key="user.id">
-                    <div class="glass-panel p-4 flex justify-between items-center group">
-                        <span class="font-medium" x-text="user.name"></span>
-                        <button @click="deleteUser(user.id)"
-                            class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                        </button>
+                    <div class="glass-panel p-4 flex justify-between items-center group relative">
+                        <!-- Display Mode -->
+                        <div x-show="editingUser !== user.id" class="flex w-full justify-between items-center">
+                            <span class="font-medium" x-text="user.name"></span>
+                            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button @click="editingUser = user.id" class="text-slate-500 hover:text-blue-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button @click="deleteUser(user.id)" class="text-slate-500 hover:text-red-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Edit Mode -->
+                        <div x-show="editingUser === user.id" class="flex w-full gap-2"
+                            @click.outside="editingUser = null">
+                            <input type="text" x-model="user.name"
+                                class="w-full px-2 py-1 rounded bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                @keydown.enter="updateUser(user.id)">
+                            <button @click="updateUser(user.id)" class="text-green-500 hover:text-green-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </template>
                 <div x-show="users.length === 0" class="col-span-full text-center text-slate-500 py-8">
@@ -96,25 +122,64 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <template x-for="account in accounts" :key="account.id">
-                    <div class="glass-panel p-4 flex flex-col gap-2 group">
-                        <div class="flex justify-between items-start">
-                            <span class="font-medium text-lg" x-text="account.name"></span>
-                            <button @click="deleteAccount(account.id)"
-                                class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    <div class="glass-panel p-4 flex flex-col gap-2 group relative">
+                        <!-- Display Mode -->
+                        <div x-show="editingAccount !== account.id" class="w-full">
+                            <div class="flex justify-between items-start">
+                                <span class="font-medium text-lg" x-text="account.name"></span>
+                                <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editingAccount = account.id"
+                                        class="text-slate-500 hover:text-blue-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                        </svg>
+                                    </button>
+                                    <button @click="deleteAccount(account.id)"
+                                        class="text-slate-500 hover:text-red-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center gap-2 text-xs text-slate-400 bg-white/5 rounded px-2 py-1 w-fit mt-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
-                            </button>
+                                <span x-text="account.user_name || 'Family Shared'"></span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2 text-xs text-slate-400 bg-white/5 rounded px-2 py-1 w-fit">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span x-text="account.user_name || 'Family Shared'"></span>
+
+                        <!-- Edit Mode -->
+                        <div x-show="editingAccount === account.id" class="flex flex-col gap-2 w-full"
+                            @click.outside="editingAccount = null">
+                            <input type="text" x-model="account.name"
+                                class="w-full px-2 py-1 rounded bg-slate-800 text-white border border-slate-600 text-sm"
+                                @keydown.enter="updateAccount(account.id)">
+                            <div class="flex gap-2">
+                                <select x-model="account.user_id"
+                                    class="w-full px-2 py-1 rounded bg-slate-800 text-white border border-slate-600 text-sm">
+                                    <option value="" class="bg-slate-800">Family (Shared)</option>
+                                    <template x-for="user in users" :key="user.id">
+                                        <option :value="user.id" x-text="user.name" class="bg-slate-800"
+                                            :selected="user.id == account.user_id"></option>
+                                    </template>
+                                </select>
+                                <button @click="updateAccount(account.id)" class="text-green-500 hover:text-green-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -139,23 +204,74 @@
                     <input type="text" x-model="newCategoryName" placeholder="Category Name"
                         class="px-4 py-2 rounded-lg text-sm bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400"
                         @keydown.enter="createCategory">
+                    <select x-model="newCategoryParentId"
+                        class="px-4 py-2 rounded-lg text-sm w-32 bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="" class="bg-slate-800">No Parent</option>
+                        <template x-for="p in parentCategories" :key="p.id">
+                            <option :value="p.id" x-text="p.name" class="bg-slate-800"></option>
+                        </template>
+                    </select>
                     <button @click="createCategory"
                         class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">Add</button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <template x-for="category in categories" :key="category.id">
-                    <div class="glass-panel p-3 flex justify-between items-center group">
-                        <span class="font-medium text-sm truncate" x-text="category.name"></span>
-                        <button @click="deleteCategory(category.id)"
-                            class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <template x-for="category in flattenedCategories" :key="category.id">
+                    <div class="glass-panel p-3 flex flex-col justify-center group relative min-h-[60px]"
+                        :class="{'ml-4 border-l-2 border-slate-700': category.depth > 0}">
+                        <!-- Display Mode -->
+                        <div x-show="editingCategory !== category.id" class="flex justify-between items-center w-full">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <span x-text="category.icon || (category.depth > 0 ? '↳' : '🏷️')"
+                                    class="text-lg"></span>
+                                <span class="font-medium text-sm truncate" x-text="category.name"></span>
+                            </div>
+                            <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button @click="editingCategory = category.id"
+                                    class="text-slate-500 hover:text-blue-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button @click="deleteCategory(category.id)" class="text-slate-500 hover:text-red-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Edit Mode -->
+                        <div x-show="editingCategory === category.id" class="flex flex-col gap-2 w-full"
+                            @click.outside="editingCategory = null">
+                            <input type="text" x-model="category.name"
+                                class="w-full px-2 py-1 rounded bg-slate-800 text-white border border-slate-600 text-xs"
+                                @keydown.enter="updateCategory(category.id)">
+                            <div class="flex gap-2">
+                                <select x-model="category.parent_id"
+                                    class="w-full px-1 py-1 rounded bg-slate-800 text-white border border-slate-600 text-xs">
+                                    <option value="" class="bg-slate-800">No Parent</option>
+                                    <template x-for="p in parentCategories" :key="p.id">
+                                        <option :value="p.id" x-text="p.name" class="bg-slate-800"
+                                            :selected="p.id == category.parent_id" x-show="p.id !== category.id">
+                                        </option>
+                                    </template>
+                                </select>
+                                <button @click="updateCategory(category.id)"
+                                    class="text-green-500 hover:text-green-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </template>
                 <div x-show="categories.length === 0" class="col-span-full text-center text-slate-500 py-8">
@@ -172,10 +288,18 @@
                 users: [],
                 accounts: [],
                 categories: [],
+
+                // Form Inputs
                 newUserName: '',
                 newAccountName: '',
                 newAccountUserId: '',
                 newCategoryName: '',
+                newCategoryParentId: '',
+
+                // Editing State
+                editingUser: null,
+                editingAccount: null,
+                editingCategory: null,
 
                 async init() {
                     await this.fetchUsers();
@@ -183,6 +307,26 @@
                     await this.fetchCategories();
                 },
 
+                // Computed-like helper for categories
+                get parentCategories() {
+                    return this.categories.filter(c => !c.parent_id);
+                },
+
+                get flattenedCategories() {
+                    // Flatten parent -> children for display
+                    let flat = [];
+                    const parents = this.categories.filter(c => !c.parent_id);
+                    parents.forEach(p => {
+                        flat.push({ ...p, depth: 0 });
+                        const children = this.categories.filter(c => c.parent_id === p.id);
+                        children.forEach(c => {
+                            flat.push({ ...c, depth: 1 });
+                        });
+                    });
+                    return flat;
+                },
+
+                // API Fetchers
                 async fetchUsers() {
                     const res = await fetch('users/');
                     this.users = await res.json();
@@ -198,6 +342,7 @@
                     this.categories = await res.json();
                 },
 
+                // Users
                 async createUser() {
                     if (!this.newUserName) return;
                     await fetch('users/', {
@@ -209,6 +354,18 @@
                     this.fetchUsers();
                 },
 
+                async updateUser(id) {
+                    const user = this.users.find(u => u.id === id);
+                    if (!user) return;
+                    await fetch(`users/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: user.name }) // user.name is bound to input
+                    });
+                    this.editingUser = null;
+                    this.fetchUsers();
+                },
+
                 async deleteUser(id) {
                     if (!confirm('Are you sure?')) return;
                     await fetch(`users/${id}`, { method: 'DELETE' });
@@ -216,6 +373,7 @@
                     this.fetchAccounts();
                 },
 
+                // Accounts
                 async createAccount() {
                     if (!this.newAccountName) return;
                     const payload = { name: this.newAccountName };
@@ -231,20 +389,53 @@
                     this.fetchAccounts();
                 },
 
+                async updateAccount(id) {
+                    const account = this.accounts.find(a => a.id === id);
+                    if (!account) return;
+                    // We need to handle null user_id carefully
+                    const payload = { name: account.name };
+                    if (account.user_id) payload.user_id = account.user_id;
+
+                    await fetch(`accounts/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    this.editingAccount = null;
+                    this.fetchAccounts();
+                },
+
                 async deleteAccount(id) {
                     if (!confirm('Are you sure?')) return;
                     await fetch(`accounts/${id}`, { method: 'DELETE' });
                     this.fetchAccounts();
                 },
 
+                // Categories
                 async createCategory() {
                     if (!this.newCategoryName) return;
+                    const payload = { name: this.newCategoryName };
+                    if (this.newCategoryParentId) payload.parent_id = parseInt(this.newCategoryParentId);
+
                     await fetch('categories/', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: this.newCategoryName })
+                        body: JSON.stringify(payload)
                     });
                     this.newCategoryName = '';
+                    this.newCategoryParentId = '';
+                    this.fetchCategories();
+                },
+
+                async updateCategory(id) {
+                    const cat = this.categories.find(c => c.id === id);
+                    if (!cat) return;
+                    await fetch(`categories/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: cat.name, parent_id: cat.parent_id, icon: cat.icon })
+                    });
+                    this.editingCategory = null;
                     this.fetchCategories();
                 },
 

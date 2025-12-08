@@ -48,3 +48,26 @@ def delete_account(account_id: int, session: Session = Depends(get_session)):
     session.delete(account)
     session.commit()
     return {"ok": True}
+
+@router.put("/{account_id}", response_model=AccountRead)
+def update_account(account_id: int, account_data: AccountCreate, session: Session = Depends(get_session)):
+    account = session.get(Account, account_id)
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    
+    if account_data.user_id:
+        user = session.get(User, account_data.user_id)
+        if not user:
+             raise HTTPException(status_code=404, detail="User not found")
+             
+    account.name = account_data.name
+    account.user_id = account_data.user_id
+    session.add(account)
+    session.commit()
+    session.refresh(account)
+    
+    response = AccountRead.model_validate(account)
+    if account.user:
+        response.user_name = account.user.name
+        
+    return response

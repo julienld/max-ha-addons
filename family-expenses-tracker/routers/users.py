@@ -28,3 +28,14 @@ def delete_user(user_id: int, session: Session = Depends(get_session)):
     session.delete(user)
     session.commit()
     return {"ok": True}
+
+@router.put("/{user_id}", response_model=UserRead)
+def update_user(user_id: int, user_data: UserCreate, session: Session = Depends(get_session)):
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.name = user_data.name
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user

@@ -37,9 +37,11 @@ class AccountRead(AccountBase):
 class CategoryBase(SQLModel):
     name: str
     icon: Optional[str] = None # Emoji or icon name
+    parent_id: Optional[int] = Field(default=None, foreign_key="category.id")
 
 class Category(CategoryBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    # Self-referencing relationship could be added but simpler to just use parent_id for now
 
 class CategoryCreate(CategoryBase):
     pass

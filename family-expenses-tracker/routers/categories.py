@@ -28,3 +28,18 @@ def delete_category(category_id: int, session: Session = Depends(get_session)):
     session.delete(category)
     session.commit()
     return {"ok": True}
+
+@router.put("/{category_id}", response_model=CategoryRead)
+def update_category(category_id: int, category_data: CategoryCreate, session: Session = Depends(get_session)):
+    category = session.get(Category, category_id)
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    category.name = category_data.name
+    category.icon = category_data.icon
+    category.parent_id = category_data.parent_id
+    
+    session.add(category)
+    session.commit()
+    session.refresh(category)
+    return category
