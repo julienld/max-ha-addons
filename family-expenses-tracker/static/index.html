@@ -84,7 +84,7 @@
                         @keydown.enter="createAccount">
                     <select x-model="newAccountUserId"
                         class="px-4 py-2 rounded-lg text-sm w-40 bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="" class="bg-slate-800 text-white">Select Owner</option>
+                        <option value="" class="bg-slate-800 text-white">Family (Shared)</option>
                         <template x-for="user in users" :key="user.id">
                             <option :value="user.id" x-text="user.name" class="bg-slate-800 text-white"></option>
                         </template>
@@ -114,12 +114,52 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            <span x-text="account.user_name || 'Unassigned'"></span>
+                            <span x-text="account.user_name || 'Family Shared'"></span>
                         </div>
                     </div>
                 </template>
                 <div x-show="accounts.length === 0" class="col-span-full text-center text-slate-500 py-8">
                     No accounts yet. Add one above!
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="mb-12 animate-in" style="animation-delay: 0.3s;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-400" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    Categories
+                </h2>
+                <div class="flex gap-2">
+                    <input type="text" x-model="newCategoryName" placeholder="Category Name"
+                        class="px-4 py-2 rounded-lg text-sm bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400"
+                        @keydown.enter="createCategory">
+                    <button @click="createCategory"
+                        class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">Add</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <template x-for="category in categories" :key="category.id">
+                    <div class="glass-panel p-3 flex justify-between items-center group">
+                        <span class="font-medium text-sm truncate" x-text="category.name"></span>
+                        <button @click="deleteCategory(category.id)"
+                            class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </template>
+                <div x-show="categories.length === 0" class="col-span-full text-center text-slate-500 py-8">
+                    No categories yet.
                 </div>
             </div>
         </section>
@@ -131,13 +171,16 @@
             return {
                 users: [],
                 accounts: [],
+                categories: [],
                 newUserName: '',
                 newAccountName: '',
                 newAccountUserId: '',
+                newCategoryName: '',
 
                 async init() {
                     await this.fetchUsers();
                     await this.fetchAccounts();
+                    await this.fetchCategories();
                 },
 
                 async fetchUsers() {
@@ -148,6 +191,11 @@
                 async fetchAccounts() {
                     const res = await fetch('accounts/');
                     this.accounts = await res.json();
+                },
+
+                async fetchCategories() {
+                    const res = await fetch('categories/');
+                    this.categories = await res.json();
                 },
 
                 async createUser() {
@@ -165,7 +213,7 @@
                     if (!confirm('Are you sure?')) return;
                     await fetch(`users/${id}`, { method: 'DELETE' });
                     this.fetchUsers();
-                    this.fetchAccounts(); // Account owner names typically change/nullify
+                    this.fetchAccounts();
                 },
 
                 async createAccount() {
@@ -187,6 +235,23 @@
                     if (!confirm('Are you sure?')) return;
                     await fetch(`accounts/${id}`, { method: 'DELETE' });
                     this.fetchAccounts();
+                },
+
+                async createCategory() {
+                    if (!this.newCategoryName) return;
+                    await fetch('categories/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: this.newCategoryName })
+                    });
+                    this.newCategoryName = '';
+                    this.fetchCategories();
+                },
+
+                async deleteCategory(id) {
+                    if (!confirm('Are you sure?')) return;
+                    await fetch(`categories/${id}`, { method: 'DELETE' });
+                    this.fetchCategories();
                 }
             }
         }

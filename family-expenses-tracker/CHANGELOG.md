@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+
+- Added **Shared Accounts** support (Family/Joint accounts).
+- Added **Categories Management** (Create/Delete categories).
+
 ## 0.1.10
 
 - Fixed broken HTML syntax in "Add Member" button.

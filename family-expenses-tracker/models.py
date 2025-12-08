@@ -32,3 +32,17 @@ class AccountCreate(AccountBase):
 class AccountRead(AccountBase):
     id: int
     user_name: Optional[str] = None # Enriched field
+
+# Category
+class CategoryBase(SQLModel):
+    name: str
+    icon: Optional[str] = None # Emoji or icon name
+
+class Category(CategoryBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+class CategoryCreate(CategoryBase):
+    pass
+
+class CategoryRead(CategoryBase):
+    id: int
