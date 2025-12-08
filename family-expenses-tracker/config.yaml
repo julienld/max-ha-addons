@@ -1,0 +1,15 @@
+name: "Family Expenses Tracker"
+description: "A simple family expenses tracker addon."
+version: "0.0.1"
+slug: "family_expenses_tracker"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armv7
+map:
+  - config:rw
+  - share:rw
+options: {}
+schema: {}
+image: "family-expenses-tracker"
