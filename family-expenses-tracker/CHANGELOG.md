@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.8
+
+- Fixed background visibility by enforcing full screen height (`min-h-screen`).
+- Applied explicit Tailwind radial gradient for verified "premium" aesthetic.
+
 ## 0.1.7
 
 - Enhanced visual aesthetics with a premium radial gradient background.
