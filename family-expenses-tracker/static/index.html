@@ -20,7 +20,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.4.2</div>
+            <div class="text-xs text-slate-500 mt-1">v0.4.3</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -91,7 +91,7 @@
             async bulkUpdateCategory() {
                 if (!this.bulkCategoryId || this.selectedTransactions.length === 0) return;
                 
-                // Sequential updates (simplest for now)
+                // Sequential updates
                 for (const id of this.selectedTransactions) {
                     await fetch(`transactions/${id}`, {
                         method: 'PUT',
@@ -99,6 +99,9 @@
                         body: JSON.stringify({ category_id: this.bulkCategoryId })
                     });
                 }
+                
+                // Optional: ask to create rule based on the first selected item?
+                // For now, let's just clear and refresh.
                 
                 this.selectedTransactions = [];
                 this.bulkCategoryId = '';
@@ -127,7 +130,8 @@
                         class="bg-slate-900 border border-slate-700 text-xs rounded px-2 py-1 text-slate-300">
                         <option value="">All Categories</option>
                         <template x-for="c in flattenedCategories" :key="c.id">
-                            <option :value="c.id" x-text="c.name"></option>
+                            <option :value="c.id"
+                                x-text="(c.depth > 0 ? '\u00A0\u00A0'.repeat(c.depth) + '↳ ' : '') + c.name"></option>
                         </template>
                     </select>
                     <input type="date" x-model="transactionFilters.start_date" @change="fetchTransactions"
@@ -145,7 +149,7 @@
                         <button @click="categoryDropdownOpen = !categoryDropdownOpen"
                             class="flex items-center gap-2 px-3 py-1 bg-slate-800 border border-slate-600 rounded text-xs text-white hover:bg-slate-700 min-w-[150px] justify-between">
                             <span
-                                x-text="bulkCategoryId ? (flattenedCategories.find(c => c.id == bulkCategoryId)?.name || 'Select Category') : 'Set Category...'"></span>
+                                x-html="bulkCategoryId ? (flattenedCategories.find(c => c.id == bulkCategoryId)?.icon + ' ' + flattenedCategories.find(c => c.id == bulkCategoryId)?.name) : 'Set Category...'"></span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-400" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -166,9 +170,12 @@
                                     <button @click="bulkCategoryId = c.id; categoryDropdownOpen = false"
                                         class="w-full text-left px-2 py-1.5 rounded hover:bg-blue-600/50 text-xs text-slate-200 flex items-center gap-2"
                                         :class="{'bg-blue-600/20 text-blue-300': bulkCategoryId == c.id}">
-                                        <span x-text="c.icon || '🏷️'"></span>
-                                        <span
-                                            x-html="(c.depth > 0 && !categorySearch ? '&nbsp;&nbsp;'.repeat(c.depth) + '↳ ' : '') + c.name"></span>
+                                        <div class="flex items-center">
+                                            <span
+                                                x-html="c.depth > 0 && !categorySearch ? '&nbsp;&nbsp;'.repeat(c.depth*3) : ''"></span>
+                                            <span x-text="c.icon || '🏷️'" class="mr-1"></span>
+                                            <span x-text="c.name"></span>
+                                        </div>
                                     </button>
                                 </template>
                                 <div x-show="filteredCategories.length === 0"
@@ -181,6 +188,16 @@
                         class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold transition-colors disabled:opacity-50"
                         :disabled="!bulkCategoryId">
                         Apply
+                    </button>
+                    <div class="w-px h-4 bg-slate-700 mx-2"></div>
+                    <button @click="bulkDeleteTransactions"
+                        class="flex items-center gap-1 px-3 py-1 bg-red-900/50 hover:bg-red-900 text-red-200 border border-red-800/50 rounded text-xs font-semibold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete
                     </button>
                 </div>
             </div>
@@ -197,7 +214,7 @@
                             </th>
                             <th class="p-4 font-medium">Date</th>
                             <th class="p-4 font-medium">Description</th>
-                            <th class="p-4 font-medium">Category</th>
+                            <th class="p-4 font-medium w-1/4">Category</th>
                             <th class="p-4 font-medium">Account</th>
                             <th class="p-4 font-medium text-right">Amount</th>
                             <th class="p-4 w-10"></th>
@@ -214,11 +231,15 @@
                                 <td class="p-4 whitespace-nowrap text-slate-300" x-text="t.date"></td>
                                 <td class="p-4 font-medium text-white" x-text="t.description"></td>
                                 <td class="p-4">
-                                    <div
-                                        class="flex items-center gap-1.5 px-2 py-1 rounded bg-slate-800/80 w-fit border border-slate-700/50 text-xs text-slate-300">
-                                        <span>🏷️</span>
-                                        <span x-text="t.category_name"></span>
-                                    </div>
+                                    <!-- Inline Category Edit -->
+                                    <select @change="updateTransactionCategory(t.id, $event.target.value)"
+                                        class="bg-slate-800/50 border border-slate-700/50 rounded px-2 py-1 text-xs text-slate-300 focus:bg-slate-800 focus:border-blue-500 focus:outline-none w-full max-w-[200px]">
+                                        <template x-for="c in flattenedCategories" :key="c.id">
+                                            <option :value="c.id" :selected="c.id == t.category_id"
+                                                x-text="(c.depth > 0 ? '\u00A0\u00A0'.repeat(c.depth) + '↳ ' : '') + c.name">
+                                            </option>
+                                        </template>
+                                    </select>
                                 </td>
                                 <td class="p-4 text-slate-400 text-xs" x-text="t.account_name"></td>
                                 <td class="p-4 text-right font-mono font-medium text-emerald-400"
@@ -746,6 +767,52 @@
             async deleteTransaction(id) {
                 if (!confirm("Delete transaction?")) return;
                 await fetch(`transactions/${id}`, { method: 'DELETE' });
+                this.fetchTransactions();
+            },
+
+            async bulkDeleteTransactions() {
+                if (this.selectedTransactions.length === 0) return;
+                if (!confirm(`Delete ${this.selectedTransactions.length} transactions?`)) return;
+
+                for (const id of this.selectedTransactions) {
+                    await fetch(`transactions/${id}`, { method: 'DELETE' });
+                }
+                this.selectedTransactions = [];
+                this.fetchTransactions();
+            },
+
+            async checkAndPromptForRule(transactionId, categoryId) {
+                const transaction = this.transactions.find(t => t.id === transactionId);
+                const category = this.flattenedCategories.find(c => c.id == categoryId);
+
+                if (!transaction || !category) return;
+
+                // Simple prompt
+                if (confirm(`Do you want to create an auto-categorization rule for "${transaction.description}" -> "${category.name}"?`)) {
+                    // Create rule
+                    await fetch('imports/rules/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            pattern: transaction.description,
+                            category_id: categoryId
+                        })
+                    });
+                    this.fetchImportRules(); // Refresh rules
+                    alert("Rule created!");
+                }
+            },
+
+            async updateTransactionCategory(id, categoryId) {
+                await fetch(`transactions/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category_id: categoryId })
+                });
+
+                // Prompt for rule
+                await this.checkAndPromptForRule(id, categoryId);
+
                 this.fetchTransactions();
             },
             categories: [],

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.3
+- **Bulk Actions**: Added ability to delete multiple transactions at once.
+- **UI Improvements**: Category dropdowns (Filter and Inline) now showing full hierarchy.
+- **Inline Editing**: Can now change transaction category directly from the table.
+- **Smart Rules**: Prompts to create an auto-categorization rule when manually categorizing a transaction.
+- **Fix**: Improved hierarchy visualization in bulk category picker.
+
 ## 0.4.2
 - **Transactions UI**: Removed manual add form (import focused). Added bulk categorization with checkboxes and a searchable, hierarchical category dropdown.
 - **Import Fix**: Improved CSV parsing to support 'details' column for descriptions.
