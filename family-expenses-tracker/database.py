@@ -21,27 +21,46 @@ def migrate_db():
     with Session(engine) as session:
         # Migration 1: Add parent_id to category
         try:
-            session.exec(text("ALTER TABLE category ADD COLUMN parent_id INTEGER"))
-            session.commit()
-            print("Migrated: Added parent_id to category")
-        except OperationalError:
-            pass
+            # Check for column existence
+            columns = session.exec(text("PRAGMA table_info(category)")).all()
+            col_names = [c.name for c in columns]
+            if 'parent_id' not in col_names:
+                session.exec(text("ALTER TABLE category ADD COLUMN parent_id INTEGER"))
+                session.commit()
+                print("Migrated: Added parent_id to category")
+        except Exception as e:
+            print(f"Migration 1 Failed: {e}")
 
         # Migration 2: Add is_shared to account
         try:
-            session.exec(text("ALTER TABLE account ADD COLUMN is_shared BOOLEAN DEFAULT 0"))
-            session.commit()
-            print("Migrated: Added is_shared to account")
-        except OperationalError:
-            pass
+            columns = session.exec(text("PRAGMA table_info(account)")).all()
+            col_names = [c.name for c in columns]
+            if 'is_shared' not in col_names:
+                session.exec(text("ALTER TABLE account ADD COLUMN is_shared BOOLEAN DEFAULT 0"))
+                session.commit()
+                print("Migrated: Added is_shared to account")
+        except Exception as e:
+            print(f"Migration 2 Failed: {e}")
 
         # Migration 3: Add is_family to transaction
         try:
-            session.exec(text("ALTER TABLE 'transaction' ADD COLUMN is_family BOOLEAN DEFAULT 0"))
-            session.commit()
-            print("Migrated: Added is_family to transaction")
-        except OperationalError:
-            pass
+            # Try 'transaction' table
+            table_name = 'transaction'
+            columns = session.exec(text(f"PRAGMA table_info('{table_name}')")).all()
+            
+            # If empty, maybe table doesn't exist yet? (Should exist if user has data)
+            # If it exists, check columns
+            if columns:
+                col_names = [c.name for c in columns]
+                if 'is_family' not in col_names:
+                    session.exec(text(f"ALTER TABLE '{table_name}' ADD COLUMN is_family BOOLEAN DEFAULT 0"))
+                    session.commit()
+                    print("Migrated: Added is_family to transaction")
+            else:
+                print("Migration 3: Transaction table not found in PRAGMA?")
+
+        except Exception as e:
+            print(f"Migration 3 Failed: {e}")
 
 def seed_db():
     from models import Category

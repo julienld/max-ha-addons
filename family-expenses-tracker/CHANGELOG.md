@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2
+- **Fix**: Critical fix for database migration. Ensuring "Family Expense" column is correctly added to the database.
+- **Improved**: Added error alerts in the UI if an action fails, helping troubleshoot issues.
+
 ## 0.5.1
 - **Fix**: Resolved issue where toggling "Family Expense" or editing categories didn't save correctly.
 - **UI**: Shared accounts now strictly labeled "Shared Account" instead of "No Owner".

@@ -20,7 +20,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.5.1</div>
+            <div class="text-xs text-slate-500 mt-1">v0.5.2</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -109,11 +109,14 @@
                 if (this.selectedTransactions.length === 0) return;
                 
                 for (const id of this.selectedTransactions) {
-                     await fetch(`transactions/${id}`, {
+                     const res = await fetch(`transactions/${id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ is_family: isFamily })
                     });
+                    if (!res.ok) {
+                         alert(`Failed to update transaction ${id}.`);
+                    }
                 }
                 this.selectedTransactions = [];
                 this.fetchTransactions();
@@ -957,11 +960,18 @@
             },
 
             async updateTransactionFamily(id, isFamily) {
-                await fetch(`transactions/${id}`, {
+                const res = await fetch(`transactions/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ is_family: isFamily })
                 });
+
+                if (!res.ok) {
+                    alert('Failed to update transaction family status. Check logs.');
+                    console.error('Update failed', res.status, res.statusText);
+                    return;
+                }
+
                 this.fetchTransactions();
             },
             categories: [],
