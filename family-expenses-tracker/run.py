@@ -25,6 +25,7 @@ app.include_router(accounts.router)
 app.include_router(categories.router)
 app.include_router(transactions.router)
 app.include_router(imports.router)
+app.include_router(trips.router)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")

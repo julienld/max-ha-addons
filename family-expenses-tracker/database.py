@@ -62,6 +62,37 @@ def migrate_db():
         except Exception as e:
             print(f"Migration 3 Failed: {e}")
 
+        # Migration 4: Create trip table
+        try:
+            # Check if trip table exists
+            tables = session.exec(text("SELECT name FROM sqlite_master WHERE type='table' AND name='trip'")).all()
+            if not tables:
+                # We can use SQLModel generic creation, but create_all usually only creates tables that don't exist.
+                # However, create_all is called at start. So table should be created automatically if we just run checking?
+                # Actually create_db_and_tables calls create_all.
+                # But for existing DBs, create_all might not update schema if table exists but we want to add columns?
+                # Here we are creating a NEW table. SQLModel.metadata.create_all(engine) should handle it.
+                # BUT, let's allow create_all to do its job for new tables.
+                # The issue is create_all does NOT modify existing tables.
+                # So for new table 'trip', create_all is sufficient? Yes.
+                # But let's leave this placeholder if we need manual intervention.
+                pass
+        except Exception as e:
+            print(f"Migration 4 Failed: {e}")
+
+        # Migration 5: Add trip_id to transaction
+        try:
+            table_name = 'transaction'
+            columns = session.exec(text(f"PRAGMA table_info('{table_name}')")).all()
+            if columns:
+                col_names = [c.name for c in columns]
+                if 'trip_id' not in col_names:
+                    session.exec(text(f"ALTER TABLE '{table_name}' ADD COLUMN trip_id INTEGER"))
+                    session.commit()
+                    print("Migrated: Added trip_id to transaction")
+        except Exception as e:
+            print(f"Migration 5 Failed: {e}")
+
 def seed_db():
     from models import Category
     with Session(engine) as session:

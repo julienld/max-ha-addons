@@ -29,6 +29,7 @@ def read_transactions(
     limit: int = 100,
     account_id: Optional[int] = None,
     category_id: Optional[int] = None,
+    trip_id: Optional[int] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
     session: Session = Depends(get_session)
@@ -39,6 +40,8 @@ def read_transactions(
         query = query.where(Transaction.account_id == account_id)
     if category_id:
         query = query.where(Transaction.category_id == category_id)
+    if trip_id:
+        query = query.where(Transaction.trip_id == trip_id)
     if start_date:
         query = query.where(Transaction.date >= start_date)
     if end_date:
@@ -88,6 +91,7 @@ def _populate_transaction_read(transaction: Transaction, session: Session) -> Tr
     category_name = transaction.category.name if transaction.category else None
     account_name = transaction.account.name if transaction.account else None
     user_name = transaction.user.name if transaction.user else None
+    trip_name = transaction.trip.name if transaction.trip else None
     
     return TransactionRead(
         id=transaction.id,
@@ -97,8 +101,10 @@ def _populate_transaction_read(transaction: Transaction, session: Session) -> Tr
         category_id=transaction.category_id,
         account_id=transaction.account_id,
         user_id=transaction.user_id,
+        trip_id=transaction.trip_id,
         category_name=category_name,
         account_name=account_name,
         user_name=user_name,
+        trip_name=trip_name,
         is_family=transaction.is_family
     )

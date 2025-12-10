@@ -1,5 +1,5 @@
 from typing import Optional, List
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel, Relationship, text
 from datetime import date
 
 # User (Family Member)
@@ -15,6 +15,19 @@ class UserCreate(UserBase):
     pass
 
 class UserRead(UserBase):
+    id: int
+
+# Trip
+class TripBase(SQLModel):
+    name: str = Field(index=True)
+
+class Trip(TripBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+class TripCreate(TripBase):
+    pass
+
+class TripRead(TripBase):
     id: int
 
 # Account
@@ -61,6 +74,7 @@ class TransactionBase(SQLModel):
     category_id: int = Field(foreign_key="category.id")
     account_id: int = Field(foreign_key="account.id")
     user_id: Optional[int] = Field(default=None, foreign_key="user.id") # Optional: who made the transaction
+    trip_id: Optional[int] = Field(default=None, foreign_key="trip.id") # Optional: assigned trip
     is_family: bool = False
 
 class Transaction(TransactionBase, table=True):
@@ -70,6 +84,7 @@ class Transaction(TransactionBase, table=True):
     category: Optional["Category"] = Relationship()
     account: Optional["Account"] = Relationship()
     user: Optional["User"] = Relationship()
+    trip: Optional["Trip"] = Relationship()
 
 class TransactionCreate(TransactionBase):
     pass
@@ -81,6 +96,7 @@ class TransactionUpdate(SQLModel):
     category_id: Optional[int] = None
     account_id: Optional[int] = None
     user_id: Optional[int] = None
+    trip_id: Optional[int] = None
     is_family: Optional[bool] = None
 
 class TransactionRead(TransactionBase):
@@ -88,6 +104,7 @@ class TransactionRead(TransactionBase):
     category_name: Optional[str] = None
     account_name: Optional[str] = None
     user_name: Optional[str] = None
+    trip_name: Optional[str] = None
 
 
 # Import Rules

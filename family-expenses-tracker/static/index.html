@@ -20,7 +20,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.5.2</div>
+            <div class="text-xs text-slate-500 mt-1">v0.6.0</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -148,6 +148,13 @@
                                 x-text="(c.depth > 0 ? '\u00A0\u00A0'.repeat(c.depth) + '↳ ' : '') + c.name"></option>
                         </template>
                     </select>
+                    <select x-model="transactionFilters.trip_id" @change="fetchTransactions"
+                        class="bg-slate-900 border border-slate-700 text-xs rounded px-2 py-1 text-slate-300">
+                        <option value="">All Trips</option>
+                        <template x-for="t in trips" :key="t.id">
+                            <option :value="t.id" x-text="t.name"></option>
+                        </template>
+                    </select>
                     <input type="date" x-model="transactionFilters.start_date" @change="fetchTransactions"
                         class="bg-slate-900 border border-slate-700 text-xs rounded px-2 py-1 text-slate-300">
                 </div>
@@ -211,6 +218,14 @@
                         class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 border border-slate-600 rounded text-xs font-semibold transition-colors">
                         Mark Personal
                     </button>
+                    <select @change="bulkUpdateTrip($el.value); $el.value=''"
+                        class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded text-xs border-none focus:ring-0 cursor-pointer">
+                        <option value="">Assign Trip...</option>
+                        <option value="null">No Trip</option>
+                        <template x-for="t in trips" :key="t.id">
+                            <option :value="t.id" x-text="t.name"></option>
+                        </template>
+                    </select>
                     <div class="w-px h-4 bg-slate-700 mx-2"></div>
                     <button @click="bulkDeleteTransactions"
                         class="flex items-center gap-1 px-3 py-1 bg-red-900/50 hover:bg-red-900 text-red-200 border border-red-800/50 rounded text-xs font-semibold transition-colors">
@@ -274,6 +289,7 @@
                             <th class="p-4 font-medium">Date</th>
                             <th class="p-4 font-medium">Description</th>
                             <th class="p-4 font-medium w-1/4">Category</th>
+                            <th class="p-4 font-medium">Trip</th>
                             <th class="p-4 font-medium">Account</th>
                             <th class="p-4 font-medium text-right">Amount</th>
                             <th class="p-4 w-10"></th>
@@ -314,6 +330,16 @@
                                                 d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
                                     </div>
+                                </td>
+                                <td class="p-4">
+                                    <select @change="updateTransactionTrip(t.id, $el.value)"
+                                        class="bg-transparent text-slate-400 text-xs border-transparent hover:border-slate-700 hover:bg-slate-800 rounded px-1 py-0.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-24">
+                                        <option value="">-</option>
+                                        <template x-for="tr in trips" :key="tr.id">
+                                            <option :value="tr.id" x-text="tr.name" :selected="tr.id == t.trip_id">
+                                            </option>
+                                        </template>
+                                    </select>
                                 </td>
                                 <td class="p-4 text-slate-400 text-xs" x-text="t.account_name"></td>
                                 <td class="p-4 text-right font-mono font-medium text-emerald-400"
@@ -611,6 +637,46 @@
                 </div>
             </section>
 
+            <!-- Trips Section -->
+            <section>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-400" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Trips
+                    </h2>
+                    <div class="flex gap-2">
+                        <input type="text" x-model="newTripName" placeholder="Trip Name (e.g. Japan 2024)"
+                            class="px-4 py-2 rounded-lg text-sm w-48 bg-slate-800 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400"
+                            @keydown.enter="createTrip">
+                        <button @click="createTrip" class="btn-primary px-4 py-2 rounded-lg text-sm font-medium">Add
+                            Trip</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <template x-for="trip in trips" :key="trip.id">
+                        <div class="glass-panel p-4 flex justify-between items-center group relative">
+                            <span class="font-medium text-lg" x-text="trip.name"></span>
+                            <button @click="deleteTrip(trip.id)"
+                                class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </template>
+                    <div x-show="trips.length === 0" class="col-span-full text-center text-slate-500 py-8">
+                        No trips yet. Plan your next adventure!
+                    </div>
+                </div>
+            </section>
+
             <!-- Categories Section -->
             <section>
                 <div class="flex justify-between items-center mb-6">
@@ -756,10 +822,10 @@
             importAccountId: '',
 
             async init() {
-                await this.fetchUsers();
-                await this.fetchAccounts();
+                await this.fetchTransactions();
                 await this.fetchCategories();
-                this.fetchTransactions();
+                await this.fetchAccounts(); // Includes users
+                await this.fetchTrips();
                 this.fetchImportRules();
             },
 
@@ -904,6 +970,23 @@
                 this.fetchTransactions();
             },
 
+            async bulkUpdateTrip(tripIdStr) {
+                if (this.selectedTransactions.length === 0 || !tripIdStr) return;
+
+                const tripId = tripIdStr === 'null' ? null : parseInt(tripIdStr);
+
+                for (const id of this.selectedTransactions) {
+                    const res = await fetch(`transactions/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ trip_id: tripId })
+                    });
+                    if (!res.ok) alert(`Failed to update transaction ${id}.`);
+                }
+                this.selectedTransactions = [];
+                this.fetchTransactions();
+            },
+
             async bulkDeleteTransactions() {
                 if (this.selectedTransactions.length === 0) return;
                 if (!confirm(`Delete ${this.selectedTransactions.length} transactions?`)) return;
@@ -972,6 +1055,21 @@
                     return;
                 }
 
+                this.fetchTransactions();
+            },
+
+            async updateTransactionTrip(id, tripId) {
+                const payload = { trip_id: tripId ? parseInt(tripId) : null };
+                const res = await fetch(`transactions/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    alert('Failed to update trip.');
+                    return;
+                }
                 this.fetchTransactions();
             },
             categories: [],
@@ -1109,6 +1207,28 @@
                 if (!confirm('Delete account? This might fail if transactions exist.')) return;
                 await fetch(`accounts/${id}`, { method: 'DELETE' });
                 this.fetchAccounts();
+            },
+
+            // Trips
+            newTripName: '',
+            async fetchTrips() {
+                const res = await fetch('trips/');
+                this.trips = await res.json();
+            },
+            async createTrip() {
+                if (!this.newTripName) return;
+                await fetch('trips/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: this.newTripName })
+                });
+                this.newTripName = '';
+                this.fetchTrips();
+            },
+            async deleteTrip(id) {
+                if (!confirm('Delete trip? Transactions will remain but lose the trip tag.')) return;
+                await fetch(`trips/${id}`, { method: 'DELETE' });
+                this.fetchTrips();
             },
 
             // Categories

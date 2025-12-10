@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.0
+- **Trips**: You can now create Trips in Settings and assign transactions to them!
+  - **Manage Trips**: Create/Delete trips in Settings.
+  - **Assign**: Assign a trip directly from the transaction table (inline) or use Bulk Actions.
+  - **Filter**: Filter your transaction list to see expenses for a specific trip.
+
 ## 0.5.2
 - **Fix**: Critical fix for database migration. Ensuring "Family Expense" column is correctly added to the database.
 - **Improved**: Added error alerts in the UI if an action fails, helping troubleshoot issues.
