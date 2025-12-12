@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.9.3
+- **Feature**: Moved **Travel Dashboard** to a dedicated sidebar page for better accessibility.
+- **Improvement**: Charts now handle resizing gracefully and legends are clickable filters.
+- **Fix**: Settings inputs for Accounts no longer trigger browser password managers.
+
 ## v0.9.2
 - **Fix**: Resolved critical JavaScript syntax errors in Bulk Actions logic that caused a blank screen on startup.
 
