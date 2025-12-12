@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import Session, select, SQLModel
 from datetime import date
 
 from database import get_session

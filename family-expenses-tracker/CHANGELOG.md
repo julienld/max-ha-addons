@@ -1,7 +1,10 @@
 # Changelog
 
-## 0.7.1
-- **Fix**: Resolved Docker build error (`externally-managed-environment`) by correctly configuring pip installation.
+## 0.7.2
+- **Fix**: Resolved `NameError: name 'SQLModel' is not defined` in transactions router.
+- **Fix**: Resolved Docker build error (`externally-managed-environment`).
+
+## 0.7.0
 
 ## 0.7.0
 - **Feature**: **AI Categorization**! ✨
