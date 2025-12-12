@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.4
+- **Fix**: Resolved blank screen issue caused by missing state initialization for Trips and Categories.
+
 ## 0.7.3
 - **Fix**: Improved frontend initialization robustness to prevent blank screens if API calls fail.
 
