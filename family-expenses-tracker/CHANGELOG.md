@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.10
+- **Debug**: Improved error messages in AI Test dialog to help diagnose connection issues.
+
 ## 0.7.9
 - **Feature**: Added "Test Connection" button in AI Settings to debug model availability and API key validity.
 

@@ -20,7 +20,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.7.9</div>
+            <div class="text-xs text-slate-500 mt-1">v0.7.10</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -905,7 +905,7 @@
                     const res = await fetch('transactions/ai-test');
                     const data = await res.json();
                     if (!res.ok) {
-                        alert("Connection failed: " + data.detail);
+                        alert("Connection failed: " + JSON.stringify(data, null, 2));
                         return;
                     }
                     alert(data.message + "\n\nModels:\n" + data.available_models.join("\n"));
