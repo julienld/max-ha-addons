@@ -136,3 +136,8 @@ class ImportRuleCreate(ImportRuleBase):
 class ImportRuleRead(ImportRuleBase):
     id: int
     category_name: Optional[str] = None
+
+class ImportRuleUpdate(SQLModel):
+    pattern: Optional[str] = None
+    category_id: Optional[int] = None
+

@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.8.0
+- **Feature**: Advanced Auto-Categorization Rules
+    - Edit existing rules (Pattern & Category).
+    - Prevent duplicate rules.
+- **Feature**: Transaction Search
+    - Filter transactions by description text.
+    - Real-time filtering with debounce.
+- **UI**: Improved "Categories" Settings
+    - New Nested Card layout for easier management.
+    - Clearer distinction between Parent and Child categories.
+    - Inline editing for category names and icons.
+
 ## 0.7.12
 - **Fix**: Updated AI model fallback list to include `gemini-2.0-flash` series, which are available to newer API keys.
 

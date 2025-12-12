@@ -58,6 +58,7 @@ def read_transactions(
     trip_id: Optional[int] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
+    search: Optional[str] = None,
     session: Session = Depends(get_session)
 ):
     query = select(Transaction)
@@ -72,6 +73,8 @@ def read_transactions(
         query = query.where(Transaction.date >= start_date)
     if end_date:
         query = query.where(Transaction.date <= end_date)
+    if search:
+        query = query.where(Transaction.description.contains(search))
         
     query = query.order_by(Transaction.date.desc()).offset(skip).limit(limit)
     transactions = session.exec(query).all()

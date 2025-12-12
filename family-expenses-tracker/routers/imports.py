@@ -6,7 +6,7 @@ import codecs
 from datetime import datetime
 
 from database import get_session
-from models import ImportRule, ImportRuleCreate, ImportRuleRead, Category, Transaction, TransactionCreate, TransactionRead, Account
+from models import ImportRule, ImportRuleCreate, ImportRuleRead, Category, Transaction, TransactionCreate, TransactionRead, Account, ImportRuleUpdate
 
 router = APIRouter(prefix="/imports", tags=["imports"])
 
@@ -69,6 +69,22 @@ def delete_rule(rule_id: int, session: Session = Depends(get_session)):
     session.delete(rule)
     session.commit()
     return {"ok": True}
+
+@router.put("/rules/{rule_id}", response_model=ImportRuleRead)
+def update_rule(rule_id: int, rule: ImportRuleUpdate, session: Session = Depends(get_session)):
+    db_rule = session.get(ImportRule, rule_id)
+    if not db_rule:
+        raise HTTPException(status_code=404, detail="Rule not found")
+        
+    rule_data = rule.dict(exclude_unset=True)
+    for key, value in rule_data.items():
+        setattr(db_rule, key, value)
+        
+    session.add(db_rule)
+    session.commit()
+    session.refresh(db_rule)
+    return _populate_rule_read(db_rule, session)
+
 
 @router.post("/upload")
 async def upload_csv(
