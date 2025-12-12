@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.11
+- **Fix**: Resolved API route conflict where `ai-test` was being misinterpreted as a transaction ID.
+
 ## 0.7.10
 - **Debug**: Improved error messages in AI Test dialog to help diagnose connection issues.
 

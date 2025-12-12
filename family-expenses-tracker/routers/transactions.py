@@ -23,6 +23,32 @@ def create_transaction(transaction: TransactionCreate, session: Session = Depend
     
     return _populate_transaction_read(db_transaction, session)
 
+@router.get("/ai-test")
+def test_ai_connection(session: Session = Depends(get_session)):
+    from models import Setting
+    import google.generativeai as genai
+    
+    api_key_setting = session.get(Setting, "gemini_api_key")
+    if not api_key_setting or not api_key_setting.value:
+        raise HTTPException(status_code=400, detail="Gemini API Key not configured.")
+        
+    genai.configure(api_key=api_key_setting.value)
+    
+    available_models = []
+    try:
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                available_models.append(m.name)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list models: {str(e)}")
+        
+    return {
+        "status": "ok",
+        "available_models": available_models,
+        "message": f"Connection successful. Found {len(available_models)} models."
+    }
+
+
 @router.get("/", response_model=List[TransactionRead])
 def read_transactions(
     skip: int = 0,
@@ -231,27 +257,3 @@ Respond ONLY with the JSON list.
         "message": f"AI categorized {updated_count} transactions and created {rules_created} new rules."
     }
 
-@router.get("/ai-test")
-def test_ai_connection(session: Session = Depends(get_session)):
-    from models import Setting
-    import google.generativeai as genai
-    
-    api_key_setting = session.get(Setting, "gemini_api_key")
-    if not api_key_setting or not api_key_setting.value:
-        raise HTTPException(status_code=400, detail="Gemini API Key not configured.")
-        
-    genai.configure(api_key=api_key_setting.value)
-    
-    available_models = []
-    try:
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                available_models.append(m.name)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to list models: {str(e)}")
-        
-    return {
-        "status": "ok",
-        "available_models": available_models,
-        "message": f"Connection successful. Found {len(available_models)} models."
-    }
