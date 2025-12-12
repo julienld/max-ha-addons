@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.3
+- **Fix**: Improved frontend initialization robustness to prevent blank screens if API calls fail.
+
 ## 0.7.2
 - **Fix**: Resolved `NameError: name 'SQLModel' is not defined` in transactions router.
 - **Fix**: Resolved Docker build error (`externally-managed-environment`).

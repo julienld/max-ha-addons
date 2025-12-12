@@ -20,7 +20,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.7.2</div>
+            <div class="text-xs text-slate-500 mt-1">v0.7.3</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -850,14 +850,18 @@
             settings: { gemini_api_key: '' },
 
             async init() {
-                await Promise.all([
-                    this.fetchUsers(),
-                    this.fetchAccounts(),
-                    this.fetchCategories(),
-                    this.fetchTrips(),
-                    this.fetchSettings()
-                ]);
-                this.fetchTransactions();
+                try {
+                    await Promise.allSettled([
+                        this.fetchUsers().catch(e => console.error("Users failed", e)),
+                        this.fetchAccounts().catch(e => console.error("Accounts failed", e)),
+                        this.fetchCategories().catch(e => console.error("Categories failed", e)),
+                        this.fetchTrips().catch(e => console.error("Trips failed", e)),
+                        this.fetchSettings().catch(e => console.error("Settings failed", e))
+                    ]);
+                } catch (e) {
+                    console.error("Init failed", e);
+                }
+                this.fetchTransactions().catch(e => console.error("Transactions failed", e));
             },
 
             async fetchSettings() {
