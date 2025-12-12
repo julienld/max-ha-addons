@@ -20,7 +20,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.7.5</div>
+            <div class="text-xs text-slate-500 mt-1">v0.7.6</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -164,6 +164,16 @@
                     class="flex items-center gap-2 bg-blue-900/30 p-2 rounded-lg border border-blue-500/30 animate-in fade-in slide-in-from-bottom-2">
                     <span class="text-xs text-blue-300 font-medium"
                         x-text="selectedTransactions.length + ' selected'"></span>
+
+                    <button @click="bulkAICategorize"
+                        class="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white rounded text-xs font-semibold shadow-lg shadow-emerald-900/20 transition-all border border-emerald-400/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        AI Categorize
+                    </button>
 
                     <!-- Searchable Category Dropdown -->
                     <div class="relative" @click.outside="categoryDropdownOpen = false">

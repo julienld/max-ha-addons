@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.6
+- **Fix**: Restored missing "AI Categorize" button in the bulk actions bar.
+
 ## 0.7.5
 - **Fix**: Critical HTML syntax error in Trips section (unclosed tags) causing rendering issues.
 
