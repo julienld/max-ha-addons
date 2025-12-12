@@ -161,7 +161,7 @@ Respond ONLY with the JSON list.
 
     # 4. Call Model
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         response = model.generate_content(prompt)
         text_response = response.text
         

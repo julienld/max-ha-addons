@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.7
+- **Fix**: Updated Gemini AI model to `gemini-1.5-flash-latest` to resolve API errors.
+
 ## 0.7.6
 - **Fix**: Restored missing "AI Categorize" button in the bulk actions bar.
 
