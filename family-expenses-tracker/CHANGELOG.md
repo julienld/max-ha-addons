@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.7.1
+- **Fix**: Resolved Docker build error (`externally-managed-environment`) by correctly configuring pip installation.
+
 ## 0.7.0
 - **Feature**: **AI Categorization**! ✨
   - Configure your Gemini API Key in Settings.
