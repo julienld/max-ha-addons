@@ -108,3 +108,108 @@ def _populate_transaction_read(transaction: Transaction, session: Session) -> Tr
         trip_name=trip_name,
         is_family=transaction.is_family
     )
+
+class AICategorizeRequest(SQLModel):
+    transaction_ids: List[int]
+
+@router.post("/ai-categorize")
+def ai_categorize_transactions(request: AICategorizeRequest, session: Session = Depends(get_session)):
+    # 1. Get API Key
+    from models import Setting, ImportRule
+    import google.generativeai as genai
+    import json
+    
+    api_key_setting = session.get(Setting, "gemini_api_key")
+    if not api_key_setting or not api_key_setting.value:
+        raise HTTPException(status_code=400, detail="Gemini API Key not configured in Settings.")
+        
+    genai.configure(api_key=api_key_setting.value)
+    
+    # 2. Get Data
+    categories = session.exec(select(Category)).all()
+    categories_str = "\n".join([f"{c.id}: {c.name}" for c in categories])
+    
+    transactions = []
+    for tid in request.transaction_ids:
+        t = session.get(Transaction, tid)
+        if t: transactions.append(t)
+        
+    if not transactions:
+        return {"processed": 0, "message": "No transactions found."}
+        
+    transactions_str = "\n".join([f"{t.id}: {t.description} (${t.amount})" for t in transactions])
+    
+    # 3. Construct Prompt
+    prompt = f"""
+You are a helpful personal finance assistant.
+Your task is to categorize the following transactions based on the provided categories.
+You should also suggest a 'rule_pattern' to auto-categorize similar transactions in the future (e.g. for 'Starbucks #123' use 'Starbucks').
+
+Categories:
+{categories_str}
+
+Transactions:
+{transactions_str}
+
+Return a generic JSON list of objects. Each object must have:
+- "id": (int) the transaction id
+- "category_id": (int) the matched category id, or null if absolutely unsure.
+- "rule_pattern": (string) a keyword/substring to match this merchant, or null if generic.
+
+Respond ONLY with the JSON list.
+"""
+
+    # 4. Call Model
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt)
+        text_response = response.text
+        
+        # Cleanup markdown
+        if "```json" in text_response:
+             text_response = text_response.split("```json")[1].split("```")[0]
+        elif "```" in text_response:
+             text_response = text_response.split("```")[1].split("```")[0]
+             
+        results = json.loads(text_response)
+        
+    except Exception as e:
+        print(f"AI Error: {e}")
+        raise HTTPException(status_code=500, detail=f"AI Processing Failed: {str(e)}")
+        
+    # 5. Process Results
+    updated_count = 0
+    rules_created = 0
+    
+    for res in results:
+        tid = res.get("id")
+        cid = res.get("category_id")
+        pattern = res.get("rule_pattern")
+        
+        if not tid: continue
+        
+        # Update Transaction
+        if cid:
+            t = session.get(Transaction, tid)
+            if t:
+                t.category_id = cid
+                session.add(t)
+                updated_count += 1
+                
+        # Create Rule (if pattern provided and cid provided)
+        if pattern and cid:
+            # Check duplicate rule
+            existing = session.exec(select(ImportRule).where(ImportRule.pattern == pattern)).first()
+            if not existing:
+                new_rule = ImportRule(pattern=pattern, category_id=cid)
+                session.add(new_rule)
+                rules_created += 1
+                
+    session.commit()
+    
+    return {
+        "processed": len(transactions),
+        "updated": updated_count,
+        "new_rules": rules_created,
+        "message": f"AI categorized {updated_count} transactions and created {rules_created} new rules."
+    }

@@ -17,6 +17,19 @@ class UserCreate(UserBase):
 class UserRead(UserBase):
     id: int
 
+# Configuration / Settings
+class Setting(SQLModel, table=True):
+    key: str = Field(primary_key=True)
+    value: str
+
+class SettingCreate(SQLModel):
+    key: str
+    value: str
+
+class SettingRead(SQLModel):
+    key: str
+    value: str
+
 # Trip
 class TripBase(SQLModel):
     name: str = Field(index=True)

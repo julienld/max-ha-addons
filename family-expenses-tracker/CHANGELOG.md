@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.0
+- **Feature**: **AI Categorization**! ✨
+  - Configure your Gemini API Key in Settings.
+  - Select transactions and click "✨ AI Categorize" to automatically assign categories and create rules.
+- **Fix**: Resolved `NameError` on startup due to missing import for Trips module.
+
 ## 0.6.3
 - **Fix**: Resolved `NameError` on startup due to missing import for Trips module.
 - **Fix**: Fixed startup error (indentation issue) in v0.6.2.

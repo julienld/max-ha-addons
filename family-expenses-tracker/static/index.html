@@ -20,7 +20,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.6.3</div>
+            <div class="text-xs text-slate-500 mt-1">v0.7.0</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -667,12 +667,39 @@
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                                    <div x-show="trips.length === 0"
+                                        class="col-span-full text-center text-slate-500 py-8">
+                                        No trips yet. Plan your next adventure!
+                                    </div>
+                        </div>
+            </section>
+
+            <!-- AI Configuration -->
+            <section class="mt-12">
+                <h2 class="text-xl font-semibold flex items-center gap-2 mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-400" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    AI Configuration
+                </h2>
+                <div class="glass-panel p-6 max-w-2xl">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Gemini API Key</label>
+                        <div class="flex gap-2">
+                            <input type="password" x-model="settings.gemini_api_key" placeholder="AIzaSy..."
+                                class="flex-1 bg-slate-800 text-slate-100 border border-slate-700 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            <button @click="saveSetting('gemini_api_key', settings.gemini_api_key)"
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-medium transition-colors">
+                                Save
                             </button>
                         </div>
-                    </template>
-                    <div x-show="trips.length === 0" class="col-span-full text-center text-slate-500 py-8">
-                        No trips yet. Plan your next adventure!
+                        <p class="text-xs text-slate-500 mt-2">
+                            Get your key from <a href="https://aistudio.google.com/" target="_blank"
+                                class="text-blue-400 hover:underline">Google AI Studio</a>. Used for
+                            auto-categorization.
+                        </p>
                     </div>
                 </div>
             </section>
@@ -820,13 +847,65 @@
                 category_id: ''
             },
             importAccountId: '',
+            settings: { gemini_api_key: '' },
 
             async init() {
-                await this.fetchTransactions();
-                await this.fetchCategories();
-                await this.fetchAccounts(); // Includes users
-                await this.fetchTrips();
-                this.fetchImportRules();
+                await Promise.all([
+                    this.fetchUsers(),
+                    this.fetchAccounts(),
+                    this.fetchCategories(),
+                    this.fetchTrips(),
+                    this.fetchSettings()
+                ]);
+                this.fetchTransactions();
+            },
+
+            async fetchSettings() {
+                const res = await fetch('settings/');
+                const data = await res.json();
+                // Convert list to object map
+                data.forEach(s => {
+                    this.settings[s.key] = s.value;
+                });
+            },
+
+            async saveSetting(key, value) {
+                const res = await fetch(`settings/${key}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key, value })
+                });
+                if (res.ok) alert('Setting saved!');
+                else alert('Failed to save setting.');
+            },
+
+            async bulkAICategorize() {
+                if (this.selectedTransactions.length === 0) return;
+
+                // Show loading state? simplified for now - maybe just simple confirmation
+                if (!confirm(`Categorize ${this.selectedTransactions.length} transactions with AI?`)) return;
+
+                try {
+                    const res = await fetch('transactions/ai-categorize', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ transaction_ids: this.selectedTransactions })
+                    });
+
+                    if (!res.ok) {
+                        const err = await res.json();
+                        alert(`Error: ${err.detail}`);
+                        return;
+                    }
+
+                    const result = await res.json();
+                    alert(result.message);
+                    this.selectedTransactions = [];
+                    this.fetchTransactions();
+
+                } catch (e) {
+                    alert('Request failed');
+                }
             },
 
             // UI State

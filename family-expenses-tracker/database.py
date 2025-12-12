@@ -93,6 +93,17 @@ def migrate_db():
         except Exception as e:
             print(f"Migration 5 Failed: {e}")
 
+        # Migration 6: Create setting table
+        try:
+            # Check if setting table exists
+            tables = session.exec(text("SELECT name FROM sqlite_master WHERE type='table' AND name='setting'")).all()
+            if not tables:
+                session.exec(text("CREATE TABLE setting (key TEXT PRIMARY KEY, value TEXT)"))
+                session.commit()
+                print("Migrated: Created setting table")
+        except Exception as e:
+            print(f"Migration 6 Failed: {e}")
+
 def seed_db():
     from models import Category
     with Session(engine) as session:
