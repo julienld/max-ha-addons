@@ -7,6 +7,8 @@
     - **Travel Dashboard**: Dedicated tab for analyzing trip expenses with cost breakdown.
     - **Drill-down**: Clicking charts redirects to the filtered transaction list.
 - **Library**: integrated `Chart.js` for visualizations.
+- **Fix**: Resolved issue where Transaction Search was not filtering results.
+- **Fix**: Persist selected transactions after performing bulk actions (e.g., Categorize, Update Trip).
 
 ## v0.8.0
 - **Feature**: Advanced Auto-Categorization Rules
