@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.9.6
+- **Feature**: Added a list of top categories with amounts next to the Dashboard Pie Chart.
+- **Feature**: Added a "Clear Filters" button to the Transactions view.
+- **Fix**: Resolved an issue where Import Rules were not being displayed.
+- **Fix**: Improved Dashboard navigation and filter logic.
+
 ## v0.9.5
 - **Fix**: Resolved an issue where the **Travel** filter was ignored when viewing transaction details.
 

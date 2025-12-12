@@ -21,7 +21,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.9.5</div>
+            <div class="text-xs text-slate-500 mt-1">v0.9.6</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -161,8 +161,32 @@
                     <!-- Pie -->
                     <div class="glass-panel p-6 h-[400px] flex flex-col">
                         <h3 class="text-lg font-bold text-white mb-4">Monthly Breakdown</h3>
-                        <div class="flex-1 relative w-full h-full">
-                            <canvas id="dashPieChart"></canvas>
+                        <div class="flex-1 flex gap-4 min-h-0">
+                            <!-- Chart -->
+                            <div class="relative w-1/2 h-full">
+                                <canvas id="dashPieChart"></canvas>
+                            </div>
+                            <!-- List -->
+                            <div class="w-1/2 h-full overflow-y-auto custom-scrollbar">
+                                <table class="w-full text-sm text-slate-300">
+                                    <template x-if="dashboard.stats">
+                                        <template x-for="(cat, index) in dashboard.stats.categories.slice(0, 10)"
+                                            :key="cat.id">
+                                            <tr class="border-b border-slate-700/50 hover:bg-slate-700/30 cursor-pointer"
+                                                @click="navigateToCategory(cat.id)">
+                                                <td class="py-2 flex items-center gap-1">
+                                                    <div class="w-2 h-2 rounded-full flex-shrink-0"
+                                                        :style="`background-color: ${['#6366f1', '#ec4899', '#14b8a6', '#f59e0b', '#8b5cf6', '#ef4444', '#3b82f6', '#10b981', '#f97316', '#64748b'][index] || '#cbd5e1'}`">
+                                                    </div>
+                                                    <span x-text="cat.name" class="truncate"></span>
+                                                </td>
+                                                <td class="py-2 text-right font-mono"
+                                                    x-text="'$' + cat.total.toFixed(2)"></td>
+                                            </tr>
+                                        </template>
+                                    </template>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     <!-- Bar -->
@@ -334,6 +358,12 @@
                     </select>
                     <input type="date" x-model="transactionFilters.start_date" @change="fetchTransactions"
                         class="bg-slate-900 border border-slate-700 text-xs rounded px-2 py-1 text-slate-300">
+                    <button
+                        @click="transactionFilters = {account_id: '', category_id: '', trip_id: '', start_date: '', end_date: '', search: ''}; fetchTransactions();"
+                        class="text-xs text-slate-400 hover:text-white px-2 py-1 rounded hover:bg-slate-700 transition-colors"
+                        title="Clear Filters">
+                        ✕
+                    </button>
                 </div>
 
                 <!-- Bulk Actions -->
@@ -1155,6 +1185,7 @@
                 } catch (e) {
                     console.error("Init failed", e);
                 }
+                this.fetchImportRules().catch(e => console.error("Rules failed", e));
                 this.fetchTransactions().catch(e => console.error("Transactions failed", e));
                 this.fetchDashboardStats().catch(e => console.error("Dashboard failed", e));
             },
@@ -1237,6 +1268,7 @@
 
             async fetchDashboardStats() {
                 const query = `year=${this.dashboard.year}&month=${this.dashboard.month}&scope=${this.dashboard.scope}`;
+                console.log("Fetching dashboard stats with scope:", this.dashboard.scope, "| Type:", typeof this.dashboard.scope);
                 const res = await fetch(`stats/dashboard?${query}`);
                 this.dashboard.stats = await res.json();
                 this.renderDashboardCharts();
@@ -1252,6 +1284,20 @@
                 this.renderTripChart();
             },
 
+            navigateToCategory(catId) {
+                const y = this.dashboard.year;
+                const m = this.dashboard.month;
+                const lastDay = new Date(y, m, 0).getDate();
+                const start = `${y}-${String(m).padStart(2, '0')}-01`;
+                const end = `${y}-${String(m).padStart(2, '0')}-${lastDay}`;
+
+                this.transactionFilters.category_id = catId;
+                this.transactionFilters.start_date = start;
+                this.transactionFilters.end_date = end;
+                this.currentView = 'transactions';
+                this.fetchTransactions();
+            },
+
             renderDashboardCharts() {
                 this.$nextTick(() => {
                     // Destroy old charts
@@ -1264,27 +1310,6 @@
                     const pieCtx = document.getElementById('dashPieChart');
                     if (pieCtx) {
                         const cats = this.dashboard.stats.categories.slice(0, 10); // Top 10
-
-                        const navigationLogic = (index) => {
-                            const catId = cats[index].id;
-                            // Redirect to transactions
-                            // Calculate start/end date for filter
-                            // Check if trend data exists, fallback if not
-                            let start = '', end = '';
-                            if (this.dashboard.stats.trend && this.dashboard.stats.trend.length > 0) {
-                                const y = this.dashboard.stats.trend[5].year;
-                                const m = this.dashboard.stats.trend[5].month_num;
-                                const lastDay = new Date(y, m, 0).getDate();
-                                start = `${y}-${String(m).padStart(2, '0')}-01`;
-                                end = `${y}-${String(m).padStart(2, '0')}-${lastDay}`;
-                            }
-
-                            this.transactionFilters.category_id = catId;
-                            this.transactionFilters.start_date = start;
-                            this.transactionFilters.end_date = end;
-                            this.currentView = 'transactions';
-                            this.fetchTransactions();
-                        };
 
                         this.dashboard.charts.pie = new Chart(pieCtx, {
                             type: 'doughnut',
@@ -1301,16 +1326,14 @@
                                 maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
-                                        position: 'right',
-                                        labels: { color: '#cbd5e1' },
-                                        onClick: (e, legendItem, legend) => {
-                                            navigationLogic(legendItem.index);
-                                        }
+                                        display: false // Hide legend as we have the list now
                                     }
                                 },
                                 onClick: (evt, elements) => {
                                     if (elements.length > 0) {
-                                        navigationLogic(elements[0].index);
+                                        const index = elements[0].index;
+                                        const catId = cats[index].id;
+                                        this.navigateToCategory(catId);
                                     }
                                 }
                             }
