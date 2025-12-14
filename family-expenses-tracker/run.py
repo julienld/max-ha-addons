@@ -35,7 +35,12 @@ app.include_router(stats.router)
 
 @app.get("/")
 def read_root():
-    return FileResponse('static/index.html')
+    response = FileResponse('static/index.html')
+    # Prevent aggressive caching of the main page
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 if __name__ == "__main__":
     # Ingress in Home Assistant usually forwards to the container on the ingress_port.

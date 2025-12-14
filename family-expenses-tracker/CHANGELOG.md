@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.9.9
+- **Fix**: Added cache-control headers to prevent browsers from showing outdated versions of the application.
+
 ## v0.9.8
 - **Fix**: Resolved a critical issue causing the application to fail to load (missing variable `editingTrip`).
 
