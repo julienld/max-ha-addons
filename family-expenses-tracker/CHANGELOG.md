@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.9.7
+- **Feature**: Added ability to rename Trips in the Settings / Trips view.
+- **Feature**: Added **Load More** button to Transactions list to view history beyond the latest 100.
+- **UI**: Improved Date Range filter UI for clarity.
+
 ## v0.9.6
 - **Feature**: Added a list of top categories with amounts next to the Dashboard Pie Chart.
 - **Feature**: Added a "Clear Filters" button to the Transactions view.

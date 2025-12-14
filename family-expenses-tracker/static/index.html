@@ -21,7 +21,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.9.6</div>
+            <div class="text-xs text-slate-500 mt-1">v0.9.7</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -356,8 +356,15 @@
                             <option :value="t.id" x-text="t.name"></option>
                         </template>
                     </select>
-                    <input type="date" x-model="transactionFilters.start_date" @change="fetchTransactions"
-                        class="bg-slate-900 border border-slate-700 text-xs rounded px-2 py-1 text-slate-300">
+                    <div class="flex items-center gap-1 bg-slate-900 border border-slate-700 rounded px-2 py-1">
+                        <span class="text-xs text-slate-500">Date:</span>
+                        <input type="date" x-model="transactionFilters.start_date" @change="fetchTransactions"
+                            class="bg-transparent text-xs text-slate-300 focus:outline-none w-24">
+                        <span class="text-xs text-slate-500">-</span>
+                        <input type="date" x-model="transactionFilters.end_date" @change="fetchTransactions"
+                            class="bg-transparent text-xs text-slate-300 focus:outline-none w-24">
+                    </div>
+
                     <button
                         @click="transactionFilters = {account_id: '', category_id: '', trip_id: '', start_date: '', end_date: '', search: ''}; fetchTransactions();"
                         class="text-xs text-slate-400 hover:text-white px-2 py-1 rounded hover:bg-slate-700 transition-colors"
@@ -927,16 +934,39 @@
 
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <template x-for="trip in trips" :key="trip.id">
-                        <div class="glass-panel p-4 flex justify-between items-center group relative">
-                            <span class="font-medium text-lg" x-text="trip.name"></span>
-                            <button @click="deleteTrip(trip.id)"
-                                class="text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                        <div class="glass-panel p-4 flex flex-col justify-between group relative min-h-[80px]">
+                            <!-- View Mode -->
+                            <div x-show="editingTrip !== trip.id"
+                                class="flex justify-between items-start w-full h-full">
+                                <span class="font-medium text-lg text-white" x-text="trip.name"></span>
+                                <div class="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button @click="editingTrip = trip.id" class="text-slate-500 hover:text-blue-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path
+                                                d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                        </svg>
+                                    </button>
+                                    <button @click="deleteTrip(trip.id)" class="text-slate-500 hover:text-red-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Edit Mode -->
+                            <div x-show="editingTrip === trip.id" class="flex flex-col gap-2 w-full"
+                                @click.outside="editingTrip = null">
+                                <input type="text" x-model="trip.name"
+                                    class="w-full px-2 py-1 rounded bg-slate-800 text-white border border-slate-600 text-sm"
+                                    @keydown.enter="updateTrip(trip.id)">
+                                <button @click="updateTrip(trip.id)"
+                                    class="text-xs bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded w-full">
+                                    Save
+                                </button>
+                            </div>
                         </div>
                     </template>
                     <div x-show="trips.length === 0" class="col-span-full text-center text-slate-500 py-8">
@@ -1161,7 +1191,13 @@
                 account_id: '',
                 category_id: '',
                 start_date: '',
-                end_date: ''
+                end_date: '',
+                search: '' // Ensure search is here
+            },
+            pagination: {
+                skip: 0,
+                limit: 100,
+                hasMore: true
             },
 
             // Import Rules State
@@ -1501,8 +1537,13 @@
             },
 
             // Transactions API
-            async fetchTransactions() {
-                let url = 'transactions/?skip=0&limit=100';
+            async fetchTransactions(append = false) {
+                if (!append) {
+                    this.pagination.skip = 0;
+                    this.transactions = [];
+                }
+
+                let url = `transactions/?skip=${this.pagination.skip}&limit=${this.pagination.limit}`;
                 if (this.transactionFilters.account_id) url += `&account_id=${this.transactionFilters.account_id}`;
                 if (this.transactionFilters.category_id) url += `&category_id=${this.transactionFilters.category_id}`;
                 if (this.transactionFilters.trip_id) url += `&trip_id=${this.transactionFilters.trip_id}`;
@@ -1511,7 +1552,20 @@
                 if (this.transactionFilters.search) url += `&search=${encodeURIComponent(this.transactionFilters.search)}`;
 
                 const res = await fetch(url);
-                this.transactions = await res.json();
+                const newTransactions = await res.json();
+
+                if (append) {
+                    this.transactions = [...this.transactions, ...newTransactions];
+                } else {
+                    this.transactions = newTransactions;
+                }
+
+                this.pagination.hasMore = newTransactions.length === this.pagination.limit;
+                this.pagination.skip += newTransactions.length;
+            },
+
+            async loadMoreTransactions() {
+                await this.fetchTransactions(true);
             },
 
             async createTransaction() {
@@ -1841,6 +1895,17 @@
             async deleteTrip(id) {
                 if (!confirm('Delete trip? Transactions will remain but lose the trip tag.')) return;
                 await fetch(`trips/${id}`, { method: 'DELETE' });
+                this.fetchTrips();
+            },
+            async updateTrip(id) {
+                const trip = this.trips.find(t => t.id === id);
+                if (!trip) return;
+                await fetch(`trips/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: trip.name })
+                });
+                this.editingTrip = null;
                 this.fetchTrips();
             },
 

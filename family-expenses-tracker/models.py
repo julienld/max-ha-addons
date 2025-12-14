@@ -40,6 +40,9 @@ class Trip(TripBase, table=True):
 class TripCreate(TripBase):
     pass
 
+class TripUpdate(SQLModel):
+    name: Optional[str] = None
+
 class TripRead(TripBase):
     id: int
 
