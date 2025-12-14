@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.9.13
+- **Fix**: Resolved critical crash in Settings page due to missing `settings` object initialization.
+
 ## v0.9.12
 - **Fix**: Resolved issue where "Add Account" and other buttons in Settings might not work due to missing initialization.
 - **UI**: Disabled autocomplete on Settings inputs to prevent password managers from interfering.
