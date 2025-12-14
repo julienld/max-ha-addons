@@ -8,11 +8,14 @@ DATABASE_URL = f"sqlite:///{os.path.join(DATA_DIR, DB_NAME)}"
 
 # check_same_thread=False is needed for SQLite with FastAPI multi-threading
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+print(f"[DIAGNOSTIC] DATABASE_PATH: {os.path.abspath(os.path.join(DATA_DIR, DB_NAME))}")
+print(f"[DIAGNOSTIC] DATABASE_URL: {DATABASE_URL}")
 
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 def create_db_and_tables():
+    print("[DIAGNOSTIC] create_db_and_tables called")
     # Ensure models are registered with SQLModel before creating tables
     import models 
     SQLModel.metadata.create_all(engine)

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.9.17
+- **Debug**: Added aggressive startup diagnostics to identify database file location and table existence issues.
+
 ## v0.9.16
 - **Fix**: Implemented complete manual database initialization to resolve "no such table" errors on corrupted or initialized-failed databases.
 

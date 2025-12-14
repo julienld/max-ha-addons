@@ -9,9 +9,23 @@ from routers import users, accounts, categories, transactions, imports, trips, s
 async def lifespan(app: FastAPI):
     # Startup
     print("--------------------------------------------------")
-    print("   FAMILY EXPENSES TRACKER - VERSION v0.9.11")
+    print("   FAMILY EXPENSES TRACKER - VERSION v0.9.17")
     print("--------------------------------------------------")
+    
+    # Run Database Creation
     create_db_and_tables()
+
+    # Diagnostic: Check Tables
+    from database import engine
+    from sqlmodel import Session, text
+    print("[DIAGNOSTIC] Checking tables after startup...")
+    with Session(engine) as session:
+        try:
+            result = session.exec(text("SELECT name FROM sqlite_master WHERE type='table'")).all()
+            print(f"[DIAGNOSTIC] Existing Tables: {result}")
+        except Exception as e:
+            print(f"[DIAGNOSTIC] Failed to list tables: {e}")
+    print("--------------------------------------------------")
     yield
     # Shutdown
 
