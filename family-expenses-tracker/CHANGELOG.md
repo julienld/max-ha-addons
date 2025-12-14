@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.9.15
+- **Fix**: Added explicit database migrations for `importrule` and `trip` tables to fix startup errors on existing databases.
+
 ## v0.9.14
 - **Fix**: Reinforced database schema creation to ensure the `setting` table is properly created on startup.
 

@@ -69,16 +69,9 @@ def migrate_db():
             # Check if trip table exists
             tables = session.exec(text("SELECT name FROM sqlite_master WHERE type='table' AND name='trip'")).all()
             if not tables:
-                # We can use SQLModel generic creation, but create_all usually only creates tables that don't exist.
-                # However, create_all is called at start. So table should be created automatically if we just run checking?
-                # Actually create_db_and_tables calls create_all.
-                # But for existing DBs, create_all might not update schema if table exists but we want to add columns?
-                # Here we are creating a NEW table. SQLModel.metadata.create_all(engine) should handle it.
-                # BUT, let's allow create_all to do its job for new tables.
-                # The issue is create_all does NOT modify existing tables.
-                # So for new table 'trip', create_all is sufficient? Yes.
-                # But let's leave this placeholder if we need manual intervention.
-                pass
+                session.exec(text("CREATE TABLE IF NOT EXISTS trip (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)"))
+                session.commit()
+                print("Migrated: Created trip table")
         except Exception as e:
             print(f"Migration 4 Failed: {e}")
 
@@ -106,6 +99,16 @@ def migrate_db():
                 print("Migrated: Created setting table")
         except Exception as e:
             print(f"Migration 6 Failed: {e}")
+
+        # Migration 7: Create importrule table
+        try:
+            tables = session.exec(text("SELECT name FROM sqlite_master WHERE type='table' AND name='importrule'")).all()
+            if not tables:
+                session.exec(text("CREATE TABLE IF NOT EXISTS importrule (id INTEGER PRIMARY KEY AUTOINCREMENT, pattern TEXT NOT NULL, category_id INTEGER NOT NULL, FOREIGN KEY(category_id) REFERENCES category(id))"))
+                session.commit()
+                print("Migrated: Created importrule table")
+        except Exception as e:
+            print(f"Migration 7 Failed: {e}")
 
 def seed_db():
     from models import Category
