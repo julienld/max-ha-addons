@@ -7,6 +7,7 @@ RUN apk add --no-cache python3 py3-requests py3-beautifulsoup4 py3-paho-mqtt
 WORKDIR /app
 COPY run.py /app/run.py
 COPY client.py /app/client.py
+COPY mqtt_client.py /app/mqtt_client.py
 
 # Run the script
 CMD [ "python3", "/app/run.py" ]

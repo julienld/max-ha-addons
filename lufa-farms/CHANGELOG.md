@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+- Fix: Missing `mqtt_client.py` in Docker image causing ModuleNotFoundError.
+
 ## 0.2.0
 
 - **Feature**: Migrated to MQTT Discovery. The add-on now creates a "Lufa Farms" device in Home Assistant with all sensors grouped under it.
