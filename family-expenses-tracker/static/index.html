@@ -21,7 +21,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.9.21</div>
+            <div class="text-xs text-slate-500 mt-1">v0.9.22</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -1703,16 +1703,29 @@
             },
 
             async updateTransactionCategory(id, categoryId) {
-                await fetch(`transactions/${id}`, {
+                const res = await fetch(`transactions/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ category_id: categoryId })
                 });
 
-                // Prompt for rule
+                if (res.ok) {
+                    const updatedTx = await res.json();
+                    // Optimistic update local state to avoid full re-render/scroll jump
+                    const index = this.transactions.findIndex(t => t.id === id);
+                    if (index !== -1) {
+                        this.transactions[index] = updatedTx;
+                        // Force update arrays if needed in Vue/Alpine? Alpine handles array mutation well usually.
+                        // But if we replaced the object, it might need a nudge or we just copy properties.
+                        // Let's safe-replace the object properties to keep the reference if possible, or just index replace.
+                        // Simple index replace works in Alpine x-for.
+                    }
+                }
+
+                // Prompt for rule - logic handled separately
                 await this.checkAndPromptForRule(id, categoryId);
 
-                this.fetchTransactions();
+                // Do NOT call this.fetchTransactions() here prevents the scroll jump
             },
 
             async updateTransactionFamily(id, isFamily) {

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.9.22
+- **UX**: Optimized transaction category updates to prevent page scroll jumps. Now updates in-place without reloading the list.
+
 ## v0.9.21
 - **UI**: Moved bulk action buttons below the filter bar for better layout.
 - **Fix**: Resolved issue where transaction filters (especially dates) were not updating the list correctly.
