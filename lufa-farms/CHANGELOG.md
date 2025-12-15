@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.4
+
+- Fix: Added `hassio_api: true` and `homeassistant_api: true` to `config.yaml` to ensure `SUPERVISOR_TOKEN` is injected.
+
 ## 0.2.3
 
 - Fix: Switched to using `run.sh` with `with-contenv` to correctly load `SUPERVISOR_TOKEN` and MQTT service environment variables.
