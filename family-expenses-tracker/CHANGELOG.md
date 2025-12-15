@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.9.24
+- **UX**: Extended optimistic updates to "Trip Assignment" to prevent scroll jumps when assigning trips.
+
 ## v0.9.23
 - **UX**: Further improved "scroll jump" prevention by applying new auto-categorization rules to the list instantly without a full page reload.
 

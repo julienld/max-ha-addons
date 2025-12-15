@@ -21,7 +21,7 @@
             <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
                 Family Expenses
             </h1>
-            <div class="text-xs text-slate-500 mt-1">v0.9.23</div>
+            <div class="text-xs text-slate-500 mt-1">v0.9.24</div>
         </div>
 
         <nav class="flex-1 px-4 py-4 space-y-2">
@@ -1766,7 +1766,15 @@
                     alert('Failed to update trip.');
                     return;
                 }
-                this.fetchTransactions();
+
+                // Optimistic update
+                const updatedTx = await res.json();
+                const index = this.transactions.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    this.transactions[index] = updatedTx;
+                }
+
+                // Do NOT call this.fetchTransactions();
             },
             trips: [],
             categories: [],
