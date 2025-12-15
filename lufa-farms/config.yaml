@@ -1,6 +1,6 @@
 name: "Lufa Farms"
 description: "Track your Lufa Farms deliveries in Home Assistant"
-version: "0.2.4"
+version: "0.2.5"
 slug: "lufa_farms"
 hassio_api: true
 homeassistant_api: true

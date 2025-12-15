@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.5
+
+- Fix: Removed `with-contenv` from startup script to resolve "pid 1" errors and environment variable loading issues.
+- Note: This version relies on standard Docker environment variable injection (requires `hassio_api: true` from v0.2.4).
+
 ## 0.2.4
 
 - Fix: Added `hassio_api: true` and `homeassistant_api: true` to `config.yaml` to ensure `SUPERVISOR_TOKEN` is injected.
