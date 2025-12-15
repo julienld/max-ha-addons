@@ -15,4 +15,4 @@ options:
 schema:
   email: str
   password: str
-image: "lufa-farms-{arch}"
+
