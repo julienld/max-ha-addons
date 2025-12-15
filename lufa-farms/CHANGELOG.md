@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- Fix: Missing import of `LufaClient` in `run.py` causing NameError.
+
 ## 0.1.2
 
 - Fix: Switched to installing `requests` and `beautifulsoup4` via APK (`py3-requests`, `py3-beautifulsoup4`) to resolve PEP 668 build errors.

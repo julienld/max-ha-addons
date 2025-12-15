@@ -2,6 +2,7 @@ import os
 import time
 import logging
 import sys
+from client import LufaClient
 
 # Configure logging
 logging.basicConfig(
