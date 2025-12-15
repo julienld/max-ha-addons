@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.7
+
+- Fix: Added fallback check for `HASSIO_TOKEN` if `SUPERVISOR_TOKEN` is missing.
+- Debug: Added logging of environment variable keys to diagnose configuration issues.
+
 ## 0.2.6
 
 - Fix: Restored `init: false` in `config.yaml`. This resolves the "s6-overlay-suexec: fatal: can only run as pid 1" error by preventing Supervisor from interfering with the base image's S6 init system.

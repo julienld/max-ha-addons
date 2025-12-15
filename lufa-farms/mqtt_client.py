@@ -68,8 +68,12 @@ class LufaMQTTClient:
         """Fetches MQTT configuration from the Supervisor API."""
         token = os.environ.get('SUPERVISOR_TOKEN')
         if not token:
-            logger.warning("SUPERVISOR_TOKEN not found. Cannot query Supervisor API.")
-            return None
+            token = os.environ.get('HASSIO_TOKEN')
+            if token:
+                logger.info("Using HASSIO_TOKEN as fallback.")
+            else:
+                logger.warning("SUPERVISOR_TOKEN and HASSIO_TOKEN not found. Cannot query Supervisor API.")
+                return None
             
         url = "http://supervisor/services/mqtt"
         headers = {

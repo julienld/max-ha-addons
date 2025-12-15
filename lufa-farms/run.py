@@ -26,6 +26,16 @@ def get_config():
 def main():
     logger.info("Starting Lufa Farms Add-on")
     
+    # DEBUG: Log available environment variables
+    logger.info(f"Environment variables: {list(os.environ.keys())}")
+    if 'SUPERVISOR_TOKEN' in os.environ:
+        logger.info("SUPERVISOR_TOKEN is present.")
+    else:
+        logger.warning("SUPERVISOR_TOKEN is MISSING.")
+        
+    if 'HASSIO_TOKEN' in os.environ:
+        logger.info("HASSIO_TOKEN is present.")
+        
     config = get_config()
     email = config.get('email')
     password = config.get('password')
