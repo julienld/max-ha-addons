@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.9
+
+- Fix: Updated `mqtt_client.py` to be compatible with older versions of `paho-mqtt` (v1.x) provided by Alpine repositories, resolving the `CallbackAPIVersion` error.
+
 ## 0.2.8
 
 - Fix: Implemented manual loading of S6 environment variables in Python. This bypasses the need for `with-contenv` (which causes errors) while still ensuring `SUPERVISOR_TOKEN` is available.

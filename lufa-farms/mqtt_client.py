@@ -42,12 +42,17 @@ class LufaMQTTClient:
             return False
 
         try:
+            # Clean up port
             if port:
                 port = int(port)
             else:
                 port = 1883
 
-            self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="lufa_farms_addon")
+            # Handle Paho MQTT v1 vs v2 compatibility
+            if hasattr(mqtt, 'CallbackAPIVersion'):
+                self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, client_id="lufa_farms_addon")
+            else:
+                self.mqtt_client = mqtt.Client(client_id="lufa_farms_addon")
             
             if username and password:
                 self.mqtt_client.username_pw_set(username, password)
