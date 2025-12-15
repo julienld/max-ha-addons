@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.9.21
+- **UI**: Moved bulk action buttons below the filter bar for better layout.
+- **Fix**: Resolved issue where transaction filters (especially dates) were not updating the list correctly.
+
 ## v0.9.20
 - **UI**: Removed the "No categories yet" footer text that was incorrectly appearing on all pages.
 
