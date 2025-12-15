@@ -2,7 +2,7 @@ ARG BUILD_FROM
 FROM $BUILD_FROM
 
 # Install requirements for add-on
-RUN apk add --no-cache python3 py3-requests py3-beautifulsoup4
+RUN apk add --no-cache python3 py3-requests py3-beautifulsoup4 py3-paho-mqtt
 
 WORKDIR /app
 COPY run.py /app/run.py

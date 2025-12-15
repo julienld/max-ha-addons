@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+- **Feature**: Migrated to MQTT Discovery. The add-on now creates a "Lufa Farms" device in Home Assistant with all sensors grouped under it.
+- **Feature**: Automatic MQTT configuration via Home Assistant Services (`mqtt:want`).
+- **Breaking Change**: Removed direct Supervisor API sensor publishing. Requires MQTT broker.
+
 ## 0.1.3
 
 - Fix: Missing import of `LufaClient` in `run.py` causing NameError.
