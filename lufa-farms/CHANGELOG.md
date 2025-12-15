@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.3
+
+- Fix: Switched to using `run.sh` with `with-contenv` to correctly load `SUPERVISOR_TOKEN` and MQTT service environment variables.
+
 ## 0.2.2
 
 - Fix: Updated MQTT client to fetch configuration directly from Supervisor API (`http://supervisor/services/mqtt`). This fixes the "No MQTT configuration found" error when using auto-discovery.

@@ -8,6 +8,8 @@ WORKDIR /app
 COPY run.py /app/run.py
 COPY client.py /app/client.py
 COPY mqtt_client.py /app/mqtt_client.py
+COPY run.sh /app/run.sh
+RUN chmod a+x /app/run.sh
 
 # Run the script
-CMD [ "python3", "/app/run.py" ]
+CMD [ "/app/run.sh" ]

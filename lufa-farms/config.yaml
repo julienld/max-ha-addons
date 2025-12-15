@@ -1,8 +1,8 @@
 name: "Lufa Farms"
 description: "Track your Lufa Farms deliveries in Home Assistant"
-version: "0.2.2"
+version: "0.2.3"
 slug: "lufa_farms"
-init: false
+
 arch:
   - aarch64
   - amd64
