@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.10
+## 0.2.10 (Fixes #2)
 
 - Feature: Implemented automatic session renewal. If the session expires, the add-on now detects it, logs a warning ("Session Expired..."), and automatically re-authenticates.
 
