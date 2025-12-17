@@ -56,46 +56,69 @@ class LufaClient:
 
     def get_current_order_id(self):
         """Fetches the current active order ID."""
-        if not self._is_logged_in:
-            if not self.login():
-                return None
-
-        try:
-            # We must set XHR header for this internal API
-            self.session.headers.update({'X-Requested-With': 'XMLHttpRequest'})
-            
-            response = self.session.get(API_URL_ORDER_DETAILS)
-            response.raise_for_status()
-            
-            data = response.json()
-            if data.get('success') and data.get('orderId'):
-                return data['orderId']
-            
-            logger.warning(f"No active order ID found in response: {data.keys()}")
-            return None
-
-        except Exception as e:
-            logger.error(f"Error fetching order ID: {e}")
-            return None
+        return self._make_request_with_retry("GET", API_URL_ORDER_DETAILS, self._parse_order_id)
 
     def get_order_details(self, order_id):
         """Fetches tracking details for a specific order ID."""
+        data = {'order_id': order_id}
+        # Update headers for this specific post
+        extra_headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+        return self._make_request_with_retry("POST", API_URL_TRACK_ORDER, lambda r: r.json(), data=data, headers=extra_headers)
+
+    def _parse_order_id(self, response):
+        data = response.json()
+        if data.get('success') and data.get('orderId'):
+            return data['orderId']
+        return None
+
+    def _make_request_with_retry(self, method, url, callback, data=None, headers=None, retry=True):
+        """Helper to make a request and retry login if it fails."""
         if not self._is_logged_in:
             if not self.login():
                 return None
-                
+        
+        # Apply extra headers if present
+        if headers:
+            self.session.headers.update(headers)
+
         try:
-            self.session.headers.update({
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            })
+            if method == "GET":
+                response = self.session.get(url)
+            else:
+                response = self.session.post(url, data=data)
             
-            data = {'order_id': order_id}
-            response = self.session.post(API_URL_TRACK_ORDER, data=data)
             response.raise_for_status()
             
-            return response.json()
+            # Check if response implies we are logged out (e.g. redirect to login or invalid JSON)
+            # Lufa often redirects to login page which returns 200 OK but is HTML, not JSON
+            try:
+                result = callback(response)
+                # If callback returns None, it might mean logic failed (e.g. success: false), 
+                # but not necessarily that we are logged out. 
+                # However, for simplicity, if we fail to get expected data, we can try re-logging once.
+                if result is None and retry:
+                     raise ValueError("Possible session expiration (data invalid).")
+                return result
+            except (json.JSONDecodeError, ValueError):
+                # If we catch a JSON error, it's almost certainly because we got an HTML login page back
+                if retry:
+                    logger.warning("Session Expired: Authentication token invalid. Logging in again...")
+                    self._is_logged_in = False
+                    if self.login():
+                        return self._make_request_with_retry(method, url, callback, data, headers, retry=False)
+                    else:
+                        logger.error("Re-login failed.")
+                        return None
+                else:
+                    logger.error("Request failed after re-login attempt.")
+                    return None
 
         except Exception as e:
-            logger.error(f"Error fetching order details: {e}")
+            logger.error(f"Request error ({url}): {e}")
+            if retry:
+                 logger.info("Retrying request after error...")
+                 return self._make_request_with_retry(method, url, callback, data, headers, retry=False)
             return None

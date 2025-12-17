@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.10
+
+- Feature: Implemented automatic session renewal. If the session expires, the add-on now detects it, logs a warning ("Session Expired..."), and automatically re-authenticates.
+
 ## 0.2.9
 
 - Fix: Updated `mqtt_client.py` to be compatible with older versions of `paho-mqtt` (v1.x) provided by Alpine repositories, resolving the `CallbackAPIVersion` error.
