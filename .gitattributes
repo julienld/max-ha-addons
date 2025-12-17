@@ -1,0 +1,8 @@
+# Mark large assets/generated files as vendored to exclude from language stats
+*.html linguist-vendored
+*.css linguist-vendored
+*.js linguist-vendored
+*.map linguist-vendored
+
+# Explicitly declare Python files
+*.py linguist-language=Python
