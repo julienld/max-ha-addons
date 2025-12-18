@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.13
+
+- Fix: Adjusted configuration schema for `delivery_days`. Changed `[str]?` to `[str]` to ensure compatibility and visibility in the Add-on Store.
+
 ## 0.2.12 (Fixes #4)
 
 - Feature: Added `delivery_days` configuration. You can now specify which days to fetch delivery data (e.g., `["Thursday"]`). On other days, the add-on will only connect once per day to keep the entities alive in Home Assistant.
