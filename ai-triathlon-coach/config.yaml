@@ -31,5 +31,5 @@ arch:
   - aarch64
   - amd64
   - armv7
-image: "ghcr.io/max-ha-addons/ai-triathlon-coach/{arch}"
+
 init: false
