@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.7
+- **Fix**: Updated LoseIt login selectors (`#email`, `#password`, `Log In` button) based on browser agent verification to resolve login failures.
+
 ## 1.0.6
 - **Debug**: Added detailed step-by-step logging to LoseIt scraper to diagnose navigation failures.
 - **Feature**: Enhanced CSV parser to map specific LoseIt export columns (Food Item, Meal, Macros) and generate unique IDs for safe upserts.
