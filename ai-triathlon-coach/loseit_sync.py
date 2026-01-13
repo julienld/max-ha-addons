@@ -31,9 +31,14 @@ class LoseItSync:
                 page.goto("https://www.loseit.com/login")
                 
                 # Login
-                page.fill('input[name="email"]', self.email)
-                page.fill('input[name="password"]', self.password)
-                page.click('button:has-text("Login")') # Specific selector might need adjustment based on live DOM
+                # Login
+                # Verified Selectors via Browser Agent: #email, #password, 'Log In' button
+                page.fill('#email', self.email)
+                page.fill('#password', self.password)
+                
+                # "Log In" is the exact text found by verification, matching case is important
+                # Using a broad match or specific class if needed, but text is usually stable for Login/Log In
+                page.click('button:has-text("Log In")')
                 
                 # Navigate to the specific Insights URL for Daily Summary
                 target_url = "https://www.loseit.com/#Insights:Daily%20Summary%5EDaily%20Summary"
