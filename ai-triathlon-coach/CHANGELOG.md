@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.4
+- **Dependency**: Upgraded `garminconnect` library to `>=0.2.16` to fix login issues caused by recent Garmin API changes ("NoneType" error).
+
 ## 1.0.3
 - **Debug**: Enhanced Garmin logging to print obscured email and full exception traceback for login failures.
 
