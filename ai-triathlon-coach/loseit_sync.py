@@ -37,9 +37,19 @@ class LoseItSync:
                 page.fill('#password', self.password)
                 
                 # "Log In" is the exact text found by verification, matching case is important
-                # Using a broad match or specific class if needed, but text is usually stable for Login/Log In
                 page.click('button:has-text("Log In")')
                 
+                logger.info("Login submitted. Waiting for dashboard/home load...")
+                # Wait for navigation to complete (usually redirects to my.loseit.com/home or similar)
+                # We can wait for the URL to not contain 'login' anymore
+                try:
+                    page.wait_for_url("**/home**", timeout=20000) 
+                    # OR just wait for network idle if URL pattern is unknown/variable
+                    # page.wait_for_load_state('networkidle')
+                    logger.info("Login successful (Home page reached).")
+                except Exception as e:
+                    logger.warning(f"Login wait timed out or failed: {e}. Attempting to proceed regardless, or might already be there.")
+
                 # Navigate to the specific Insights URL for Daily Summary
                 target_url = "https://www.loseit.com/#Insights:Daily%20Summary%5EDaily%20Summary"
                 logger.info(f"Navigating to {target_url}...")

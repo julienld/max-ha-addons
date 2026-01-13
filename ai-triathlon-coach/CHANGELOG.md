@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.8
+- **Fix**: Added explicit wait for successful login navigation before attempting to access Insights page to prevent `invalid state` errors.
+
 ## 1.0.7
 - **Fix**: Updated LoseIt login selectors (`#email`, `#password`, `Log In` button) based on browser agent verification to resolve login failures.
 
