@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.5
+- **Feature**: Updated LoseIt sync to target specific "Daily Summary" insights page and trigger CSV export via "Export to spreadsheet" link.
+
 ## 1.0.4
 - **Dependency**: Upgraded `garminconnect` library to `>=0.2.16` to fix login issues caused by recent Garmin API changes ("NoneType" error).
 

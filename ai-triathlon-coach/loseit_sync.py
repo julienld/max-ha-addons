@@ -37,65 +37,43 @@ class LoseItSync:
                 
                 # Wait for dashboard (implicit verification)
                 page.wait_for_load_state('networkidle')
-                logger.info("Logged in.")
+                # Navigate to the specific Insights URL for Daily Summary
+                target_url = "https://www.loseit.com/#Insights:Daily%20Summary%5EDaily%20Summary"
+                logger.info(f"Navigating to {target_url}...")
+                page.goto(target_url)
+                
+                # It's a SPA, so wait for network idle or specific element
+                page.wait_for_load_state('networkidle')
 
-                # Navigate to export or report page
-                # Direct URL hack usually works for LoseIt reports, or cycle through tabs
-                # https://www.loseit.com/index.html#/settings/export
-                # OR manual navigation steps. Assuming logic for now:
-                
-                # Note: LoseIt's web UI is tricky for export. Sometimes it's easier to scrape the Daily Log view directly 
-                # instead of CSV export if CSV is gated or complex.
-                # IMPLEMENTATION CHOICE: Scraping "My Day" or "Week View" tables might be more robust than handling CSV blobs.
-                
-                # Let's try navigating to the 'Log' page which lists meals
-                # https://www.loseit.com/index.html#/logs/daily
-                
-                # Actually, user requested CSV export via export page. Let's stick to that if possible, 
-                # but fallback to simple scraping if export requires premium or is hidden.
-                # Assuming Standard workflow: 
-                # 1. Login
-                # 2. Go to https://www.loseit.com/export
-                
-                page.goto("https://www.loseit.com/export", wait_until='networkidle')
-                
-                # Check if we are on export page
-                if "export" not in page.url:
-                    logger.warning("Could not reach export page. Might be Premium feature? Trying fallback scraping.")
-                    # Implement fallback screen scraping of logs here?
-                    # For MVP, let's assume valid access or return empty.
-                    browser.close()
-                    return []
-
-                # Select Date Range: Last 7 days
-                # LoseIt export UI usually has date pickers.
-                # This is highly DOM specific. 
-                # Strategy: Just click "Export" if it defaults to logic, or set generic range.
-                
-                # For this template, since I can't see the live UI, I will write the framework for the download event
-                # which is the critical Playwright part.
-                
+                logger.info("Clicking 'Export to spreadsheet'...")
                 with page.expect_download() as download_info:
-                    # Select 'Last 4 weeks' or similar if button exists, else 'Export'
-                    # page.click("#exportButton") # Pseudo-selector
-                    pass
-                    # If this times out, it means selector failed.
+                    # Click the link with text "Export to spreadsheet"
+                    page.click('a:has-text("Export to spreadsheet")')
 
-                # download = download_info.value
-                # path = os.path.join(self.download_dir, "loseit_export.csv")
-                # download.save_as(path)
+                download = download_info.value
+                target_path = os.path.join(self.download_dir, "loseit_export.csv")
+                download.save_as(target_path)
+                logger.info(f"Downloaded export to {target_path}")
                 
-                # Parsing the CSV (Hypothetical structure):
-                # Date, Name, Type, Quantity, Units, Calories, Fat, Protein, Carbs
-                
-                # Placeholder return until selectors are verified by user
-                logger.info("LoseIt scraping structure implemented but needs valid selectors.")
-                
-                browser.close()
-            
-            # If CSV downloaded:
-            # df = pd.read_csv(path)
-            # transform to data_records
+                # Parse CSV
+                if os.path.exists(target_path):
+                    df = pd.read_csv(target_path)
+                    # Convert to list of dicts for now. 
+                    # We might need to map columns to: "Date", "Calories", "Protein", "Carbs", "Fat"
+                    # Doing a loose mapping based on probable column names
+                    df.columns = [c.strip().lower() for c in df.columns]
+                    
+                    for _, row in df.iterrows():
+                        # Basic normalization (adjust based on actual CSV headers)
+                        record = {
+                            "Date": row.get("date", datetime.now().strftime("%Y-%m-%d")), 
+                            "Calories": row.get("calories", 0),
+                            "Fat": row.get("fat", 0),
+                            "Protein": row.get("protein", 0),
+                            "Carbohydrates": row.get("carbohydrates", 0) or row.get("carbs", 0),
+                            "Note": row.get("note", "")
+                        }
+                        data_records.append(record)
             
             return data_records
 
