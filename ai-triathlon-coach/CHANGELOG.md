@@ -1,6 +1,9 @@
 # Changelog
 
-## 1.0.13
+## 1.0.14
+- **Fix**: Resolved duplicate date issue in `Daily_Summary` by normalizing existing Google Sheet dates to the full format before merging.
+- **Fix**: Improved `Daily_Summary` sync to merge data (update columns) for the same date instead of replacing rows, ensuring derived columns or data from other sources are preserved.
+
 - **Feature**: Unified date format to "Wednesday January 14 2026" across all synced sheets.
 - **Improved**: LoseIt sync now runs on the same schedule interval as other services, instead of 6x less frequently.
 
