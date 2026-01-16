@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.25
+- **Docs**: Updated documentation to include the required `nutrition` scope in the Fitbit authorization URL. This prevents 403 Forbidden errors when fetching water logs.
+
 ## 1.0.24
 - **Fix**: Resolves `AttributeError` by correctly adding the missing `get_water_log` method to `FitbitSync` class.
 
