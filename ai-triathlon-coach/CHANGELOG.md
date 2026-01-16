@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.29
+- **Fix**: Resolved `NameError` in `garmin_sync.py` by correctly importing `datetime`.
+
 ## 1.0.28
 - **Fix**: Added missing `timestampLocal` field to the Garmin hydration API payload, resolving the 400 Bad Request error.
 

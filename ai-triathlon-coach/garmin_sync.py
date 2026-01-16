@@ -1,6 +1,6 @@
 from garminconnect import Garmin
 import logging
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 logger = logging.getLogger(__name__)
 
