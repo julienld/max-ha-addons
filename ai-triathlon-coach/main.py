@@ -146,8 +146,7 @@ def job_sync_weight(config):
             gs.add_body_composition(weight_kg, timestamp)
         else:
             logger.info("No recent weight found in Fitbit.")
-        else:
-            logger.info("No recent weight found in Fitbit.")
+
 
     except Exception as e:
         logger.error(f"Weight Sync Failed: {e}")

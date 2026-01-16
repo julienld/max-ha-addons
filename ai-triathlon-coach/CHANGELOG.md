@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.22
+- **Fix**: Resolved SyntaxError in `main.py` caused by a duplicate `else` block.
+
 ## 1.0.21
 - **Fix**: Removed lbs->kg conversion for Fitbit sync (user source is already kg).
 - **Fix**: Fixed `Garmin.add_body_composition` call by supplying the required `timestamp` argument extracted from the Fitbit log.
