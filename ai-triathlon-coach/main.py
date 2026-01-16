@@ -134,18 +134,50 @@ def job_sync_weight(config):
         )
         
         # 2. Get Weight
-        result = fb.get_latest_weight() 
-        # Check if result is tuple or None
-        if result:
-            weight_kg, timestamp = result
-            
-            # User confirmed Fitbit returns KG. No conversion needed.
+        # 2. Get Weight & Hydration
+        # Weight
+        result_weight = fb.get_latest_weight() 
+        gs = GarminSync(config["garmin_username"], config["garmin_password"])
+
+        if result_weight:
+            weight_kg, timestamp = result_weight
             logger.info(f"Retrieved weight from Fitbit: {weight_kg} kg at {timestamp}")
-            
-            gs = GarminSync(config["garmin_username"], config["garmin_password"])
             gs.add_body_composition(weight_kg, timestamp)
         else:
             logger.info("No recent weight found in Fitbit.")
+            
+        # Hydration
+        # Fetch today's date
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        water_res = fb.get_water_log(today_str)
+        if water_res:
+             total_water, unit = water_res
+             if total_water > 0:
+                 # Normalize to ml
+                 total_ml = total_water
+                 if unit in ['fl oz', 'oz', 'analyzed_oz']:
+                     total_ml = total_water * 29.5735
+                 elif unit in ['cup', 'cups']:
+                     total_ml = total_water * 236.588
+                 
+                 total_ml = int(total_ml)
+                 
+                 # Logic: Garmin typically allows "Add". We want to Match Total.
+                 # So we fetch Garmin's current total, and add the diff.
+                 
+                 current_garmin_ml = gs.get_hydration_data(today_str)
+                 
+                 delta = total_ml - current_garmin_ml
+                 
+                 if delta > 10: # small buffer
+                     logger.info(f"Fitbit Water: {total_ml}ml, Garmin: {current_garmin_ml}ml. Adding {delta}ml.")
+                     gs.add_hydration(delta)
+                 elif delta < -10:
+                     logger.info(f"Garmin has more water ({current_garmin_ml}ml) than Fitbit ({total_ml}ml). Skipping.")
+                 else:
+                     logger.info("Hydration in sync.")
+             else:
+                 logger.info("No water logged in Fitbit today.")
 
 
     except Exception as e:

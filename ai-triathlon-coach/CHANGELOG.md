@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.23
+- **Feature**: Added Fitbit to Garmin Hydration sync.
+- **Logic**: Uses a "Delta" sync strategy: Fetches daily total from Fitbit, compares with Garmin's current total, and adds the difference to Garmin. Supports `ml`, `oz`, and `cups` conversion.
+
 ## 1.0.22
 - **Fix**: Resolved SyntaxError in `main.py` caused by a duplicate `else` block.
 

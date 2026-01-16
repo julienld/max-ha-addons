@@ -106,3 +106,40 @@ class GarminSync:
                 logger.info(f"Uploaded weight {weight_kg}kg to Garmin at {timestamp}.")
             except Exception as e:
                 logger.error(f"Failed to upload weight to Garmin: {e}")
+
+    def get_hydration_data(self, date_str):
+        """
+        Get hydration data for a specific date (YYYY-MM-DD).
+        Returns current intake in ml (int) or 0.
+        """
+        if not self.client:
+             self.login()
+        
+        if self.client:
+            try:
+                # API usually returns a dict with 'valueInMl' or similar
+                data = self.client.get_hydration_data(date_str)
+                # Inspecting typical response: {'date': '...', 'valueInMl': 250, 'goalInMl': 2000}
+                # Check for 'valueInMl'
+                if data and 'valueInMl' in data:
+                    return int(data['valueInMl'])
+                return 0
+            except Exception as e:
+                logger.error(f"Failed to get hydration from Garmin: {e}")
+                return 0
+        return 0
+
+    def add_hydration(self, quantity_ml):
+        """
+        Add hydration (ml) to Garmin Connect.
+        """
+        if not self.client:
+             self.login()
+        
+        if self.client:
+            try:
+                # add_hydration(valueInMl)
+                self.client.add_hydration(quantity_ml)
+                logger.info(f"Added {quantity_ml}ml hydration to Garmin.")
+            except Exception as e:
+                logger.error(f"Failed to add hydration to Garmin: {e}")
