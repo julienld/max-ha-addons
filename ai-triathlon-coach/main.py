@@ -7,7 +7,7 @@ import sys
 from datetime import datetime, timedelta
 from garmin_sync import GarminSync
 from intervals_sync import IntervalsSync
-from loseit_sync import LoseItSync
+
 from gsheets_sync import GSheetsSync
 
 # Configure logging to stdout for HA Add-on visibility
@@ -110,24 +110,6 @@ def job_sync_intervals(config):
     except Exception as e:
         logger.error(f"Intervals Sync Failed: {e}")
 
-def job_sync_loseit(config):
-    logger.info("Starting LoseIt Sync...")
-    try:
-        if not config.get("loseit_email"):
-            logger.warning("LoseIt credentials missing.")
-            return
-
-        ls = LoseItSync(config["loseit_email"], config["loseit_password"])
-        data = ls.scrape_recent_history()
-        
-        if data:
-            ws = GSheetsSync(config["google_sheets_service_account_json"], config["google_sheet_id"])
-            ws.sync_nutrition_log(data)
-            logger.info("LoseIt Sync Completed.")
-        else:
-            logger.info("No LoseIt data found or scrape failed.")
-    except Exception as e:
-        logger.error(f"LoseIt Sync Failed: {e}")
 
 def main():
     logger.info("Initializing AI Triathlon Coach Data Bridge...")
@@ -138,13 +120,11 @@ def main():
     # Schedule jobs
     schedule.every(interval).minutes.do(job_sync_garmin, config)
     schedule.every(interval).minutes.do(job_sync_intervals, config)
-    schedule.every(interval).minutes.do(job_sync_loseit, config)
     
     # Run once on startup
     logger.info("Running initial sync...")
     job_sync_garmin(config)
     job_sync_intervals(config)
-    job_sync_loseit(config)
     
     logger.info(f"Scheduler started. Heartbeat every {interval} minutes.")
     
