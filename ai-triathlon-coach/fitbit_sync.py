@@ -170,3 +170,73 @@ class FitbitSync:
         except Exception as e:
             logger.error(f"Fitbit API Request Failed: {e}")
             return None
+
+    def get_water_log(self, date_str):
+        """
+        Get water log for a date (YYYY-MM-DD).
+        Returns tuple (amount_ml, unit).
+        """
+        if not self.access_token:
+             if not self.refresh_access_token():
+                 return None
+
+        url = f"https://api.fitbit.com/1/user/-/foods/log/water/date/{date_str}.json"
+        
+        headers = {
+            "Authorization": f"Bearer {self.access_token}",
+            "Accept-Language": "en_US" # Requesting standard might give Oz? Or Metric?
+            # Actually, let's Request METRIC to be safe?
+            # "Accept-Language": "fr_FR" often forces metric.
+            # But let's handle units dynamically.
+        }
+        
+        try:
+            response = requests.get(url, headers=headers)
+            if response.status_code == 401:
+                if self.refresh_access_token():
+                   headers["Authorization"] = f"Bearer {self.access_token}"
+                   response = requests.get(url, headers=headers)
+                else:
+                   return None
+            
+            response.raise_for_status()
+            data = response.json()
+            # Response: {"summary": {"water": 1000, "waterGoal": 2000}}
+            # Water summary typically returns in the unit of the user?
+            # We need to find the unit.
+            # The API response for 'get water log' usually includes 'summary'.
+            # Unfortuntely 'summary' often lacks unit field in this endpoint. 
+            # However, `water` list entries might have unit.
+            # Let's check `data['water']` list.
+            
+            # If `summary.water` is present, it is the total.
+            # If we cannot determine unit, we might assume ML if > 100? or Oz if < 200?
+            
+            summary = data.get('summary', {})
+            total = summary.get('water', 0)
+            
+            # Let's try to infer unit from the waters list if available
+            water_entries = data.get('water', [])
+            # Entries have 'amount' and 'unit'.
+            
+            if total > 0:
+                # If we have entries, check first entry unit
+                if water_entries:
+                    unit_log = water_entries[0].get('unit', {}).get('name') or water_entries[0].get('unit', {}).get('shortName')
+                    # If 'fl oz', 'cup', 'ml'
+                    # We return (total, unit_log)
+                    return (total, unit_log)
+                
+                # If no entries (maybe logged via quick add?), summary has value.
+                # Heuristic: 
+                # If total > 500 -> likely ml
+                # If total < 200 -> likely oz? (200 oz is 6 liters, a lot but possible. 500 oz is 14L - impossible).
+                # So if > 200 it's likely ML.
+                
+                return (total, "analyzed_ml" if total > 200 else "analyzed_oz")
+
+            return (0, "ml")
+
+        except Exception as e:
+            logger.error(f"Fitbit Water Request Failed: {e}")
+            return None
