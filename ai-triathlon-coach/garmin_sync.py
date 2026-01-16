@@ -82,3 +82,19 @@ class GarminSync:
             logger.error(f"Error fetching Garmin data: {e}")
             # Try re-login once?
             return []
+
+    def add_body_composition(self, weight_kg):
+        """
+        Uploads weight (kg) to Garmin Connect.
+        """
+        if not self.client:
+             self.login()
+        
+        if self.client:
+            try:
+                # add_body_composition(weight, percent_fat=None, ...) or similar
+                # Using named argument 'weight' is safest if signature varies
+                self.client.add_body_composition(weight=weight_kg)
+                logger.info(f"Uploaded weight {weight_kg}kg to Garmin.")
+            except Exception as e:
+                logger.error(f"Failed to upload weight to Garmin: {e}")

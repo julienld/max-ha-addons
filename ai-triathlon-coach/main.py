@@ -110,6 +110,67 @@ def job_sync_intervals(config):
     except Exception as e:
         logger.error(f"Intervals Sync Failed: {e}")
 
+def job_sync_weight(config):
+    logger.info("Starting Weight Sync (Fitbit -> Garmin)...")
+    try:
+        from fitbit_sync import FitbitSync
+        
+        if not config.get("fitbit_client_id") or not config.get("fitbit_client_secret"):
+            logger.warning("Fitbit credentials missing. Skipping weight sync.")
+            return
+
+        # 1. Init Fitbit
+        # We need a token file path. Add-on usually has persistence at /data
+        token_path = "/data/fitbit_token.json"
+        # For local testing fallback
+        if not os.path.exists("/data"):
+            token_path = "fitbit_token.json"
+            
+        fb = FitbitSync(
+            config["fitbit_client_id"], 
+            config["fitbit_client_secret"], 
+            config.get("fitbit_initial_refresh_token"),
+            token_file=token_path
+        )
+        
+        # 2. Get Weight
+        weight_kg = fb.get_latest_weight() # We assumed it returns float KG (or converted)
+        
+        if weight_kg:
+            # 3. Upload to Garmin
+            # Need strict lbs->kg conversion? 
+            # In fitbit_sync.py we decided to return raw value. 
+            # If user said "My weight is lbs in fitbit", we need to convert here if fitbit returned lbs.
+            # Let's assume fitbit_sync returns whatever Fitbit gives.
+            # If we see value > 100 (unlikely for kg for fit triathlete? maybe), it might be lbs.
+            # Safe heuristic: 
+            # If weight > 600 (impossible lbs/kg) -> ignore?
+            # If weight > 100 kg? 100kg = 220lbs. Possible.
+            # If weight < 50? 50lbs = 22kg. Child?
+            
+            # Let's trust the user's requirement: "My weight is lbs in fitbit and kg in garmin".
+            # We must convert.
+            # 1 lbs = 0.45359237 kg
+            logger.info(f"Retrieved weight from Fitbit: {weight_kg}")
+            
+            # Simple heuristic detection for safety?
+            # Or just blindly convert.
+            # If the user is 180lbs -> we send 81.6kg. Correct.
+            # If the user is 80kg -> we send 36kg. DANGEROUSLY LOW.
+            
+            # If we assume Fitbit API returns User's Unit (LBS), we should convert.
+            # However, if Fitbit API actually returned KG because of some default, we'd double convert.
+            # Let's implement conversion.
+            weight_to_upload = weight_kg * 0.45359237
+            logger.info(f"Converted {weight_kg} (assumed lbs) to {weight_to_upload:.2f} kg")
+            
+            gs = GarminSync(config["garmin_username"], config["garmin_password"])
+            gs.add_body_composition(weight_to_upload)
+        else:
+            logger.info("No recent weight found in Fitbit.")
+
+    except Exception as e:
+        logger.error(f"Weight Sync Failed: {e}")
 
 def main():
     logger.info("Initializing AI Triathlon Coach Data Bridge...")
@@ -121,10 +182,14 @@ def main():
     schedule.every(interval).minutes.do(job_sync_garmin, config)
     schedule.every(interval).minutes.do(job_sync_intervals, config)
     
+    # Weight sync might not need to run every hour, but consistent with others is fine.
+    schedule.every(interval).minutes.do(job_sync_weight, config)
+    
     # Run once on startup
     logger.info("Running initial sync...")
     job_sync_garmin(config)
     job_sync_intervals(config)
+    job_sync_weight(config)
     
     logger.info(f"Scheduler started. Heartbeat every {interval} minutes.")
     

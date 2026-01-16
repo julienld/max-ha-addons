@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.19
+- **Feature**: Added Fitbit to Garmin weight sync. Fetches weight from Fitbit (assuming lbs) and uploads to Garmin (converted to kg) automatically.
+- **Config**: Added Fitbit OAuth credentials to configuration.
+
+## 1.0.18
+- **Removed**: Removed LoseIt integration and all associated scraping logic.
+- **Optimization**: Removed `playwright` dependency, significantly reducing the add-on image size.
+
 ## 1.0.17
 - **Fix**: Updated Google Sheets write operation to strictly use `range_name='A1'` to prevent compatibility issues with `gspread` versions.
 - **Fix**: Added more explicit logging for sync operations.

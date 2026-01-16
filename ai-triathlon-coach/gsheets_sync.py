@@ -88,17 +88,7 @@ class GSheetsSync:
         worksheet = self._get_worksheet("Daily_Summary")
         self._upsert_data(worksheet, data_list, key_column="Date")
 
-    def sync_nutrition_log(self, data_list):
-        """
-        Syncs nutrition data.
-        Upsert logic based on 'Date' AND 'Food_Item' AND 'Meal_Name' to avoid dupes,
-        or better, a composite key or just timestamp. 
-        For simplicity, we'll try to match on Date + Timestamp + Food_Item.
-        """
-        worksheet = self._get_worksheet("Nutrition_Log")
-        # Composite key for nutrition: Date + Timestamp + Food_Item
-        self._upsert_data(worksheet, data_list, key_column="Timestamp") 
-        
+
     def sync_workout_details(self, data_list):
         """
         Syncs workout data.
