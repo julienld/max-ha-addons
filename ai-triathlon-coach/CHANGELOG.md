@@ -1,8 +1,8 @@
 # Changelog
 
-## 1.0.41
-- **Fix**: Resolved 500 Server Error during export by using RFC3339 timestamp format (`YYYY-MM-DDTHH:MM:SS.000Z`) for `start` and `end` parameters.
-- **Fix**: Added `Origin`, `Referer`, and `X-Requested-With` headers to the export request to mimic browser behavior.
+## 1.0.42
+- **Fix**: Implemented full GWT Authentication flow (`gwt_authenticate` and `generate_auth_token`) to obtain the required `nonce` for data export. This should definitively resolve the 500 Server Error by using the internal API correctly.
+- **Change**: Reverted export date format to `YYYY-MM-DD` as per `gocronometer` library reference.
 - **Fix**: Updated Cronometer export logic to use `https://cronometer.com/export` with explicit parameters (`type=servings`, `start`, `end`) instead of a direct file download URL. This ensures complete data retrieval and resolves 404 errors.
 - **Improvement**: Added visual log separator and startup banner to `main.py` for better log readability on restart.
   - Added `userCode` field to login payload.
