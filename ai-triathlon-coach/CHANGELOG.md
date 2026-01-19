@@ -1,8 +1,8 @@
 # Changelog
 
-## 1.0.42
-- **Fix**: Implemented full GWT Authentication flow (`gwt_authenticate` and `generate_auth_token`) to obtain the required `nonce` for data export. This should definitively resolve the 500 Server Error by using the internal API correctly.
-- **Change**: Reverted export date format to `YYYY-MM-DD` as per `gocronometer` library reference.
+## 1.0.43
+- **Fix**: Updated CSV mapping to support "Food Name" header (resolves missing food items).
+- **Fix**: Changed date format to `YYYY-MM-DD` and added quote stripping to fix Excel/Sheets formatting issues (' in front of date).
 - **Fix**: Updated Cronometer export logic to use `https://cronometer.com/export` with explicit parameters (`type=servings`, `start`, `end`) instead of a direct file download URL. This ensures complete data retrieval and resolves 404 errors.
 - **Improvement**: Added visual log separator and startup banner to `main.py` for better log readability on restart.
   - Added `userCode` field to login payload.

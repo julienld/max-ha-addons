@@ -233,21 +233,26 @@ class GSheetsSync:
                 v = row.get(key, default)
                 return v if v else "0"
 
-            # Date construction: "Wednesday January 14 2026"
+            # Date construction: Standard ISO YYYY-MM-DD preferred for sheets
             # Row has "Date" like "2026-01-14" usually? Or "Day"
             date_raw = row.get("Day") or row.get("Date")
             date_formatted = ""
             if date_raw:
                 try:
+                    # Clean up any potential ' quote chars if they exist in source
+                    date_raw = str(date_raw).strip("'")
                     dt = pd.to_datetime(date_raw)
-                    date_formatted = dt.strftime("%A %B %d %Y")
+                    date_formatted = dt.strftime("%Y-%m-%d")
                 except:
                     date_formatted = str(date_raw)
 
             # Map Columns
+            # Food column might be "Food" or "Food Name" depending on export version
+            food_item = row.get("Food Name") or row.get("Food") or row.get("Group") or "Unknown"
+
             record = {
                 "Date": date_formatted, # Required for upsert logic if we use Date as key
-                "Food_Item": row.get("Food", ""),
+                "Food_Item": food_item,
                 "Meal_Name": row.get("Group", ""), # "Group" is often used for Meal (Breakfast, Lunch, etc)
                 "Quantity": row.get("Amount", ""),
                 "Units": row.get("Unit", ""),
