@@ -98,12 +98,12 @@ class GarminSync:
                     from datetime import datetime
                     timestamp = datetime.now().isoformat()
                 
-                try:
-                    self.client.add_body_composition(timestamp, weight=weight_kg)
-                    logger.info(f"Uploaded weight {weight_kg}kg to Garmin at {timestamp}.")
-                except AttributeError:
-                    logger.warning("Garmin library 'add_body_composition' method not found. Skipping weight upload.")
-                except Exception as e:
-                    logger.error(f"Failed to upload weight to Garmin: {e}")
+                self.client.add_body_composition(timestamp, weight=weight_kg)
+                logger.info(f"Uploaded weight {weight_kg}kg to Garmin at {timestamp}.")
+
+            except AttributeError:
+                logger.warning("Garmin library 'add_body_composition' method not found. Skipping weight upload.")
+            except Exception as e:
+                logger.error(f"Failed to upload weight to Garmin: {e}")
 
 

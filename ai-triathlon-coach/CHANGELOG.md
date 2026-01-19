@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.48
+- **Fix**: Resolved SyntaxError in `garmin_sync.py`.
+
 ## 1.0.47
 - **Fix**: Resolved "duplicate labels" error in Workout Details sync by switching to incremental merge strategy.
 - **Fix**: Handled missing `add_body_composition` method in Garmin library to prevent crashes during weight sync.
