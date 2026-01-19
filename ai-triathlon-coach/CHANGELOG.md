@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.51
+- **Fix**: Changed default value for missing Garmin data (Weight, HR, Sleep) from empty string (`""`) to `None`. This prevents the sync from overwriting existing data (e.g. from other sources) with blank values during the merge process.
+
 ## 1.0.50
 - **Fix**: Upgraded `garminconnect` library to `>=0.2.24` to resolve login `AssertionError` caused by Garmin API changes (profile dict structure).
 

@@ -64,15 +64,15 @@ class GarminSync:
             
             summary_record = {
                 "Date": today.isoformat(),
-                "Weight": float(user_summary.get("totalWeight", 0)) * 2.20462 if user_summary.get("totalWeight") else "",
-                "Sleep_Score": sleep_data.get("dailySleepDTO", {}).get("sleepScoreFeedback", ""), # or sleepScore
-                "Resting_HR": user_summary.get("restingHeartRate", ""),
-                "Stress_Avg": user_summary.get("averageStressLevel", ""),
+                "Weight": float(user_summary.get("totalWeight", 0)) * 2.20462 if user_summary.get("totalWeight") else None,
+                "Sleep_Score": sleep_data.get("dailySleepDTO", {}).get("sleepScoreFeedback", None), 
+                "Resting_HR": user_summary.get("restingHeartRate", None),
+                "Stress_Avg": user_summary.get("averageStressLevel", None),
             }
             
             # HRV might be nested differently
             if hrv_data and 'hrvSummary' in hrv_data:
-                summary_record["HRV_Last_Night"] = hrv_data['hrvSummary'].get('lastNightAvg', "")
+                summary_record["HRV_Last_Night"] = hrv_data['hrvSummary'].get('lastNightAvg', None)
 
             return [summary_record]
 
