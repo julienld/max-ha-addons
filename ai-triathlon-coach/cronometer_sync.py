@@ -27,9 +27,7 @@ class CronometerSync:
         """
         logger.info("Logging into Cronometer...")
         
-        # 1. Get the login page first to set cookies/CSRF if needed (though straight POST might work)
-        # Some frameworks require a CSRF token from the form. 
-        # gocronometer parses "anticsrf" token. Let's try to find it.
+        # 1. Get the login page first
         try:
             resp = self.session.get(self.LOGIN_URL)
             resp.raise_for_status()
@@ -37,15 +35,13 @@ class CronometerSync:
             # Parse anti-csrf token
             # Looking for <input name="anticsrf" value="..."/>
             import re
-            csrf_match = re.search(r'name="anticsrf"\s+value="([^"]+)"', resp.text)
-            if not csrf_match:
-                # Try single quotes or other variations if standard fails
-                 csrf_match = re.search(r"name='anticsrf'\s+value='([^']+)'", resp.text)
+            # More robust regex
+            csrf_match = re.search(r'name=["\']anticsrf["\']\s+value=["\']([^"\']+)["\']', resp.text, re.IGNORECASE)
             
-            anticsrf = csrf_match.group(1) if csrf_match else "0" # Default to 0 or empty if not found, but likely required
+            anticsrf = csrf_match.group(1) if csrf_match else "" 
             
-            if csrf_match:
-                logger.debug(f"CSRF token found: {anticsrf}")
+            if anticsrf:
+                logger.debug("CSRF token found.")
             else:
                 logger.warning("CSRF token NOT found in login page.")
 
@@ -55,18 +51,23 @@ class CronometerSync:
                 "anticsrf": anticsrf
             }
             
-            login_resp = self.session.post(self.LOGIN_URL, data=payload)
+            # Add headers that might be required
+            headers = {
+                "Origin": self.BASE_URL,
+                "Referer": self.LOGIN_URL
+            }
+            
+            login_resp = self.session.post(self.LOGIN_URL, data=payload, headers=headers)
             login_resp.raise_for_status()
             
             if "Display Name" in login_resp.text or "Logout" in login_resp.text or "dashboard" in login_resp.url:
                 logger.info("Cronometer login successful.")
                 return True
             else:
-                 # Check if we missed the CSRF token
-                if "anticsrf" in resp.text:
-                   logger.warning("CSRF token detected but not handled yet. Implementation update required if login failed.")
-                
-                logger.error("Login failed. Check credentials.")
+                logger.error(f"Login failed. URL: {login_resp.url}")
+                # Save debug html if needed, but for now just print snippet
+                snippet = login_resp.text[:500].replace("\n", " ")
+                logger.error(f"Response Snippet: {snippet}")
                 return False
 
         except Exception as e:
