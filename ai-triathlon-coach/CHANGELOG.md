@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.49
+- **Changed**: Upgraded `garminconnect` library to `0.2.16` to support weight upload (`add_body_composition`).
+- **Feature**: Added extensive debug logging for Garmin, Intervals, and Google Sheets sync to diagnose missing data.
+
 ## 1.0.48
 - **Fix**: Resolved SyntaxError in `garmin_sync.py`.
 

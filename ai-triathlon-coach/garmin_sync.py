@@ -53,9 +53,11 @@ class GarminSync:
             
             # 2. heart rate / stress / body battery (usually in user summary)
             user_summary = self.client.get_user_summary(today.isoformat())
+            logger.info(f"DEBUG: Garmin User Summary: {user_summary}")
             
             # 3. HRV (might need explicit call)
             hrv_data = self.client.get_hrv_data(today.isoformat())
+            logger.info(f"DEBUG: Garmin HRV Data: {hrv_data}")
 
             # Extract fields
             # Inspect response structure carefully - using .get robustly

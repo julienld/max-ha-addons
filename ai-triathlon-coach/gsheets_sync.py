@@ -40,7 +40,10 @@ class GSheetsSync:
         Columns: Date, Intervals_CTL, Intervals_ATL, Intervals_RampRate, Intervals_RestingHR, Intervals_HRV
         """
         if not wellness_data:
+            logger.info("DEBUG: No wellness data provided to sync_wellness_data")
             return
+
+        logger.info(f"DEBUG: Syncing Wellness Data: {wellness_data}")
 
         # Prepare list of flat dictionaries mapping to sheet columns
         # wellness_data keys: date, ctl, atl, rampRate, weight, restingHR, hrv
