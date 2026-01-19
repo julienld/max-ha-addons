@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.35
+- **Fix**: Resolved Cronometer login failure by correctly extracting and submitting the `anticsrf` token from the login page.
+
 ## 1.0.34
 - **Feature**: Added Cronometer integration for nutrition logging. Data is exported internally via CSV and synced to the `Nutrition_Log` sheet.
 - **Config**: Added `cronometer_username` and `cronometer_password` options.

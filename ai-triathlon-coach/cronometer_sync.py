@@ -34,18 +34,26 @@ class CronometerSync:
             resp = self.session.get(self.LOGIN_URL)
             resp.raise_for_status()
             
-            # Simple parsing for parsing anti-csrf token if it exists in the page
-            # Usually it's in a hidden input or JS variable.
-            # gocronometer suggests it is needed.
+            # Parse anti-csrf token
+            # Looking for <input name="anticsrf" value="..."/>
+            import re
+            csrf_match = re.search(r'name="anticsrf"\s+value="([^"]+)"', resp.text)
+            if not csrf_match:
+                # Try single quotes or other variations if standard fails
+                 csrf_match = re.search(r"name='anticsrf'\s+value='([^']+)'", resp.text)
             
-            # Let's try a direct post first with basic params, if it fails we implement the token parsing.
+            anticsrf = csrf_match.group(1) if csrf_match else "0" # Default to 0 or empty if not found, but likely required
+            
+            if csrf_match:
+                logger.debug(f"CSRF token found: {anticsrf}")
+            else:
+                logger.warning("CSRF token NOT found in login page.")
+
             payload = {
                 "username": self.username,
-                "password": self.password
+                "password": self.password,
+                "anticsrf": anticsrf
             }
-            
-            # Note: If they use a hidden anti-csrf token, we might need to scrape it from resp.text
-            # Checking resp.text for 'name="anticsrf"' might be useful if login fails.
             
             login_resp = self.session.post(self.LOGIN_URL, data=payload)
             login_resp.raise_for_status()
