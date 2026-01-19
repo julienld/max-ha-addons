@@ -10,6 +10,8 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+pd.set_option('future.no_silent_downcasting', True)
+
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
@@ -48,8 +50,9 @@ class GSheetsSync:
         for w in wellness_data:
             record = {
                 "Date": w.get("date"),
-                "Intervals_CTL": w.get("ctl"),
-                "Intervals_ATL": w.get("atl"),
+                "Intervals_Fitness": w.get("ctl"),
+                "Intervals_Fatigue": w.get("atl"),
+                "Intervals_Form_Percent": w.get("form_percent"),
                 "Intervals_RampRate": w.get("rampRate"),
                 "Weight": w.get("weight"),
                 "Intervals_RestingHR": w.get("restingHR"),
@@ -122,7 +125,7 @@ class GSheetsSync:
                     if not d: return ""
                     dt = pd.to_datetime(d, errors='coerce')
                     if pd.isnull(dt): return str(d)
-                    return dt.strftime("%A %B %d %Y")
+                    return dt.strftime("%Y-%m-%d")
                 except:
                     return str(d)
 
@@ -195,7 +198,7 @@ class GSheetsSync:
             if "Date" in df_final.columns:
                 # We need to sort by actual date value, not the string format "Wednesday..."
                 # Create temp sort col
-                df_final["_sort_date"] = pd.to_datetime(df_final["Date"], format="%A %B %d %Y", errors='coerce')
+                df_final["_sort_date"] = pd.to_datetime(df_final["Date"], format="%Y-%m-%d", errors='coerce')
                 df_final.sort_values(by="_sort_date", ascending=False, inplace=True)
                 df_final.drop(columns=["_sort_date"], inplace=True)
             

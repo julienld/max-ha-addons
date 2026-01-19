@@ -62,18 +62,14 @@ class GarminSync:
             
             summary_record = {
                 "Date": today.isoformat(),
-                "Weight": user_summary.get("totalWeight", ""), # Might be grams
+                "Weight": float(user_summary.get("totalWeight", 0)) * 2.20462 if user_summary.get("totalWeight") else "",
                 "Sleep_Score": sleep_data.get("dailySleepDTO", {}).get("sleepScoreFeedback", ""), # or sleepScore
                 "Resting_HR": user_summary.get("restingHeartRate", ""),
-                "Body_Battery_High": user_summary.get("maxBodyBattery", ""), # example
-                "Body_Battery_Low": user_summary.get("minBodyBattery", ""),
-                "Total_Calories_In": "", # Garmin usually tracks burned. Consumed comes from MFP connection if set.
                 "Stress_Avg": user_summary.get("averageStressLevel", ""),
             }
             
             # HRV might be nested differently
             if hrv_data and 'hrvSummary' in hrv_data:
-                summary_record["HRV_Status"] = hrv_data['hrvSummary'].get('weeklyAverage', "") # proxy
                 summary_record["HRV_Last_Night"] = hrv_data['hrvSummary'].get('lastNightAvg', "")
 
             return [summary_record]

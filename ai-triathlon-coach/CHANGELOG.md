@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.46
+- **Changed**: Fixed Pandas FutureWarning regarding downcasting.
+- **Changed**: Defaulted Garmin weight to converted Lbs (from KG).
+- **Changed**: Removed unused columns from Daily Summary sync (Body Battery, Calories, HRV Status).
+- **Feature**: Updates Intervals.icu sync to include Fitness, Fatigue, and Form %.
+- **Fix**: Fixed date formatting in Google Sheets to be YYYY-MM-DD.
+
 ## 1.0.45
 - **Feature**: Implemented **Incremental Sync** for Nutrition Log.
   - The add-on now fetches only the **Current Day's** data from Cronometer (instead of full history) to optimize performance.

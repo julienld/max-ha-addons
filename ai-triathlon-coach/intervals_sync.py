@@ -86,10 +86,15 @@ class IntervalsSync:
                 if not date_str:
                     continue
                     
+                ctl = entry.get("ctl", 0) or 0
+                atl = entry.get("atl", 0) or 0
+                form_percent = ((ctl - atl) / ctl * 100) if ctl and ctl > 0 else 0
+                
                 clean_wellness.append({
                     "date": date_str,
-                    "ctl": entry.get("ctl"),
-                    "atl": entry.get("atl"),
+                    "ctl": ctl,
+                    "atl": atl,
+                    "form_percent": round(form_percent, 1),
                     "rampRate": entry.get("rampRate"),
                     "weight": entry.get("weight"),
                     "restingHR": entry.get("restingHR"),
