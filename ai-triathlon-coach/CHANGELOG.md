@@ -1,8 +1,10 @@
 # Changelog
 
-## 1.0.43
-- **Fix**: Updated CSV mapping to support "Food Name" header (resolves missing food items).
-- **Fix**: Changed date format to `YYYY-MM-DD` and added quote stripping to fix Excel/Sheets formatting issues (' in front of date).
+## 1.0.45
+- **Feature**: Implemented **Incremental Sync** for Nutrition Log.
+  - The add-on now fetches only the **Current Day's** data from Cronometer (instead of full history) to optimize performance.
+  - Existing sheet history is preserved; new daily data is merged in (overwriting previous entries for the same day to handle updates/deletions).
+- **Fix**: Resolved "text format" date issue in Google Sheets by setting `value_input_option='USER_ENTERED'`.
 - **Fix**: Updated Cronometer export logic to use `https://cronometer.com/export` with explicit parameters (`type=servings`, `start`, `end`) instead of a direct file download URL. This ensures complete data retrieval and resolves 404 errors.
 - **Improvement**: Added visual log separator and startup banner to `main.py` for better log readability on restart.
   - Added `userCode` field to login payload.

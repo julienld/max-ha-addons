@@ -255,7 +255,7 @@ class GSheetsSync:
                 "Food_Item": food_item,
                 "Meal_Name": row.get("Group", ""), # "Group" is often used for Meal (Breakfast, Lunch, etc)
                 "Quantity": row.get("Amount", ""),
-                "Units": row.get("Unit", ""),
+                # "Units": row.get("Unit", ""), # Removed as per user request
                 "Calories": get_val("Energy (kcal)"),
                 "Fat": get_val("Fat (g)"),
                 "Protein": get_val("Protein (g)"),
@@ -266,26 +266,72 @@ class GSheetsSync:
             
         worksheet = self._get_worksheet("Nutrition_Log")
         
-        # Determine uniqueness key. 
-        # Nutrition logs are granular. "Date" + "Food_Item" + "Time" + "Amount"?
-        # Since we don't have a unique ID, full sync (overwrite for the day) is cleaner if we download full history?
-        # BUT Cronometer export is usually full history. 
-        # Overwriting the whole sheet every hour is inefficient if large.
-        # But _upsert_data logic merges based on KEY.
-        # If we use "Date" as key, it will replace ALL rows for that Date with... just the LAST one?
-        # NO! _upsert_data current implementation: 
-        # df_existing.set_index(key_column) -> if duplicates exist in index, it's messy.
-        # AND "Date" is definitely not unique for nutrition (multiple foods per day).
+        # Custom Sync Logic for Nutrition Log: Incremental Sync
+        # 1. New data only contains today (or specific range).
+        # 2. We need to KEEP history that is NOT in the new data's date range.
+        # 3. But we must OVERWRITE data for dates that ARE in the new data (to handle deletions/edits).
         
-        # Custom Sync Logic for Nutrition Log needed.
-        # We likely want to REPLACE data for specific days found in the export, 
-        # or if the export is ALL time, we might just replace the whole sheet?
-        # User said "Export feature". If it's a full export, replacing whole sheet is safest to avoid dupes/deletions.
-        
-        # Let's implement full replace for now, as it handles deletions (user deleted a food).
-        self._replace_all_data(worksheet, normalized_data)
+        self._incremental_merge_data(worksheet, normalized_data)
 
-    def _replace_all_data(self, worksheet, data):
+    def _incremental_merge_data(self, worksheet, new_data):
+        """
+        Merges new data with existing sheet data.
+        Strategy:
+        1. Read all existing data.
+        2. Identify dates present in new_data.
+        3. Remove ALL rows from existing data that match those dates.
+        4. Append new_data.
+        5. Sort and Write.
+        """
+        if not new_data:
+            return
+
+        try:
+            # 1. Read existing
+            existing_records = worksheet.get_all_records()
+            df_existing = pd.DataFrame(existing_records)
+            
+            # New Data DF
+            df_new = pd.DataFrame(new_data)
+            
+            if df_existing.empty:
+                # If sheet is empty, just write new
+                df_final = df_new
+            else:
+                # 2. Identify dates in new data
+                # Ensure we are comparing same types (strings YYYY-MM-DD)
+                if "Date" not in df_new.columns:
+                     logger.warning("New data missing Date column, cannot merge reliably. Replacing all.")
+                     self._replace_all_data(worksheet, new_data)
+                     return
+
+                new_dates = df_new["Date"].unique()
+                
+                # 3. Remove rows from existing that match new_dates
+                # Ensure existing Date column is string
+                if "Date" in df_existing.columns:
+                    # Filter: Keep rows where Date is NOT in new_dates
+                    df_existing = df_existing[~df_existing["Date"].isin(new_dates)]
+                
+                # 4. Append
+                df_final = pd.concat([df_existing, df_new], ignore_index=True)
+
+            # 5. Sort and Write
+            if "Date" in df_final.columns:
+                df_final["_sort"] = pd.to_datetime(df_final["Date"], format="%Y-%m-%d", errors='coerce')
+                df_final.sort_values(by="_sort", ascending=False, inplace=True)
+                df_final.drop(columns=["_sort"], inplace=True)
+                
+            df_final.fillna("", inplace=True)
+            
+            worksheet.clear()
+            data_to_write = [df_final.columns.values.tolist()] + df_final.values.tolist()
+            worksheet.update(range_name='A1', values=data_to_write, value_input_option='USER_ENTERED')
+            logger.info(f"Merged {len(new_data)} new records into {worksheet.title}. Total rows: {len(df_final)}")
+
+        except Exception as e:
+            logger.error(f"Failed to merge data in {worksheet.title}: {e}")
+            raise
         """
         Replaces entire sheet content with new data.
         """
@@ -296,7 +342,7 @@ class GSheetsSync:
         
         # Sort by Date descending
         if "Date" in df.columns:
-            df["_sort"] = pd.to_datetime(df["Date"], format="%A %B %d %Y", errors='coerce')
+            df["_sort"] = pd.to_datetime(df["Date"], format="%Y-%m-%d", errors='coerce')
             df.sort_values(by="_sort", ascending=False, inplace=True)
             df.drop(columns=["_sort"], inplace=True)
             
@@ -305,7 +351,12 @@ class GSheetsSync:
         try:
             worksheet.clear()
             data_to_write = [df.columns.values.tolist()] + df.values.tolist()
-            worksheet.update(range_name='A1', values=data_to_write)
+            # value_input_option='USER_ENTERED' forces Sheets to parse strings (dates, numbers)
+            worksheet.update(range_name='A1', values=data_to_write, value_input_option='USER_ENTERED')
+            logger.info(f"Replaced {worksheet.title} with {len(data)} rows.")
+        except Exception as e:
+            logger.error(f"Failed to replace data in {worksheet.title}: {e}")
+            raise
             logger.info(f"Replaced {worksheet.title} with {len(data)} rows.")
         except Exception as e:
             logger.error(f"Failed to replace data in {worksheet.title}: {e}")

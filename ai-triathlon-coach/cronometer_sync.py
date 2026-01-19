@@ -183,9 +183,9 @@ class CronometerSync:
             # Prepare Parameters
             import datetime
             
-            # Default to fetching ALL history if no start date is provided.
+            # Default to fetching TODAY's data for incremental sync.
             if not start_date:
-                start_date = "2010-01-01"
+                start_date = datetime.datetime.now().strftime("%Y-%m-%d")
             
             if not end_date:
                 end_date = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
