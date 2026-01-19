@@ -65,8 +65,22 @@ class CronometerSync:
             login_resp = self.session.post(self.LOGIN_API_URL, data=payload, headers=headers)
             login_resp.raise_for_status()
             
+            # Check if login was successful
+            # The JSON response for success is typically {"redirect": "https://cronometer.com/"}
+            try:
+                resp_json = login_resp.json()
+                if "redirect" in resp_json:
+                    logger.info("Cronometer login successful (JSON redirect).")
+                    return True
+                elif "error" in resp_json:
+                    logger.error(f"Login failed. Error: {resp_json.get('error')}")
+                    return False
+            except ValueError:
+                # If not JSON, fall back to text check (legacy/HTML response)
+                pass
+
             if "Display Name" in login_resp.text or "Logout" in login_resp.text or "dashboard" in login_resp.url:
-                logger.info("Cronometer login successful.")
+                logger.info("Cronometer login successful (HTML check).")
                 return True
             else:
                 logger.error(f"Login failed. URL: {login_resp.url}")

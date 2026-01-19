@@ -6,6 +6,7 @@
   - Added `X-Requested-With: XMLHttpRequest` header to ensure JSON response.
   - Added `userCode` field to login payload.
   - Improved CSRF token extraction regex and added detailed debug logging.
+  - **Fix**: Updated success check to handle schema-less JSON redirect responses (`{"redirect": "..."}`) correctly.
 
 ## 1.0.35
 - **Fix**: Resolved Cronometer login failure by correctly extracting and submitting the `anticsrf` token from the login page.
