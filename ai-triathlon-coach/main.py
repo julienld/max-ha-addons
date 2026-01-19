@@ -145,44 +145,6 @@ def job_sync_weight(config):
             gs.add_body_composition(weight_kg, timestamp)
         else:
             logger.info("No recent weight found in Fitbit.")
-            
-        # Hydration
-        # Fetch today's date
-        today_str = datetime.now().strftime("%Y-%m-%d")
-        water_res = fb.get_water_log(today_str)
-        if water_res:
-             total_water, unit = water_res
-             logger.info(f"Fitbit Water Fetched: {total_water} {unit}")
-             
-             if total_water > 0:
-                 # Normalize to ml
-                 total_ml = total_water
-                 u_lower = str(unit).lower()
-                 
-                 if any(x in u_lower for x in ['oz', 'ounce']):
-                     total_ml = total_water * 29.5735
-                 elif any(x in u_lower for x in ['cup']):
-                     total_ml = total_water * 236.588
-                 
-                 total_ml = int(total_ml)
-                 
-                 # Logic: Garmin typically allows "Add". We want to Match Total.
-                 # So we fetch Garmin's current total, and add the diff.
-                 
-                 current_garmin_ml = gs.get_hydration_data(today_str)
-                 
-                 delta = total_ml - current_garmin_ml
-                 
-                 if delta > 10: # small buffer
-                     logger.info(f"Fitbit Water: {total_ml}ml, Garmin: {current_garmin_ml}ml. Adding {delta}ml.")
-                     gs.add_hydration(delta)
-                 elif delta < -10:
-                     logger.info(f"Garmin has more water ({current_garmin_ml}ml) than Fitbit ({total_ml}ml). Skipping.")
-                 else:
-                     logger.info("Hydration in sync.")
-             else:
-                 logger.info("No water logged in Fitbit today.")
-
 
     except Exception as e:
         logger.error(f"Weight Sync Failed: {e}")

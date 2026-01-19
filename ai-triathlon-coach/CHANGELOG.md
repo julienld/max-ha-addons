@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.33
+- **Removal**: Removed Fitbit Hydration sync feature as per user request (moved to a different application).
+- **Docs**: Reverted the required Fitbit scopes to just `weight profile`.
+
 ## 1.0.32
 - **Fix**: Updated `get_hydration_data` to use the direct Garmin endpoint `/usersummary-service/usersummary/hydration/daily/{date}`, as the library wrapper was consistently returning 0.
 
