@@ -91,11 +91,14 @@ class IntervalsSync:
                 atl = entry.get("atl", 0) or 0
                 form_percent = ((ctl - atl) / ctl * 100) if ctl and ctl > 0 else 0
                 
+                form_absolute = ctl - atl
+                
                 clean_wellness.append({
                     "date": date_str,
                     "ctl": ctl,
                     "atl": atl,
                     "form_percent": round(form_percent, 1),
+                    "form_absolute": round(form_absolute, 1),
                     "rampRate": entry.get("rampRate"),
                     "weight": entry.get("weight"),
                     "restingHR": entry.get("restingHR"),

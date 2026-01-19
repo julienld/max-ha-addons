@@ -55,6 +55,7 @@ class GSheetsSync:
                 "Date": w.get("date"),
                 "Intervals_Fitness": w.get("ctl"),
                 "Intervals_Fatigue": w.get("atl"),
+                "Intervals_Form": w.get("form_absolute"),
                 "Intervals_Form_Percent": w.get("form_percent"),
                 "Intervals_RampRate": w.get("rampRate"),
                 "Weight": w.get("weight"),

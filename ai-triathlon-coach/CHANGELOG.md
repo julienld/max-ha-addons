@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.53
+- Add `Intervals_Form` (Absolute) metric to Google Sheets sync.
+- Refine Intervals wellness data mapping.
+
 ## 1.0.52
 - **Fix**: Updated Garmin sync to fetch Weight from `get_body_composition` endpoint instead of `user_summary` (which was returning None).
 - **Fix**: Logic added to handle body composition response (grams to kg conversion) and fallback.
