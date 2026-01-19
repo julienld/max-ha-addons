@@ -10,7 +10,7 @@ class CronometerSync:
     BASE_URL = "https://cronometer.com"
     LOGIN_URL = "https://cronometer.com/login/" # Page with the form
     LOGIN_API_URL = "https://cronometer.com/login" # API endpoint for POST (no trailing slash)
-    EXPORT_URL = "https://cronometer.com/export/Servings.csv"
+    EXPORT_URL = "https://cronometer.com/export/servings.csv"
 
     def __init__(self, username, password):
         self.username = username
