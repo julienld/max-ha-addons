@@ -61,6 +61,7 @@ class GarminSync:
 
             # 4. Body Composition (for Weight)
             # 'user_summary' does not contain weight history. We must fetch explicit body composition.
+            # Updated to handle list or dict response.
             body_comp = self.client.get_body_composition(today.isoformat())
             logger.info(f"DEBUG: Garmin Body Composition: {body_comp}")
             

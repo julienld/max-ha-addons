@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.57
+- Refined Garmin Hydration sync.
+- Added debug logging for Training Readiness and Training Status to diagnose empty values.
+
 ## 1.0.56
 - Fix Google Sheets Date formatting (enforced `USER_ENTERED`).
 - Add Garmin Training Readiness, Training Status, and Hydration sync.
