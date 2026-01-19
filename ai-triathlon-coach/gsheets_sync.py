@@ -218,7 +218,7 @@ class GSheetsSync:
             worksheet.clear()
             # Explicit A1 notation for update to ensure reliability across gspread versions
             data_to_write = [df_final.columns.values.tolist()] + df_final.values.tolist()
-            worksheet.update(range_name='A1', values=data_to_write)
+            worksheet.update(range_name='A1', values=data_to_write, value_input_option='USER_ENTERED')
             logger.info(f"Synced {len(new_data)} records to {worksheet.title} (merged). Final shape: {df_final.shape}")
 
         except Exception as e:

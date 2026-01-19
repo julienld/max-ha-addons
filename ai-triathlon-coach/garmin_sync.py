@@ -92,6 +92,42 @@ class GarminSync:
             if weight_val:
                 weight_lbs = weight_val * 2.20462
 
+            # 5. Training Readiness
+            readiness_score = None
+            try:
+                readiness_data = self.client.get_training_readiness(today.isoformat())
+                logger.info(f"DEBUG: Garmin Readiness Data: {readiness_data}")
+                if isinstance(readiness_data, dict):
+                    # structure usually {'score': 85, ...}
+                    readiness_score = readiness_data.get("score")
+            except Exception as e:
+                logger.warning(f"Could not fetch Training Readiness: {e}")
+
+            # 6. Training Status
+            training_status = None
+            try:
+                training_status_data = self.client.get_training_status(today.isoformat())
+                logger.info(f"DEBUG: Garmin Training Status Data: {training_status_data}")
+                if isinstance(training_status_data, dict):
+                    # structure often {'mostRecentTrainingStatus': {'status': '...'}}
+                    # or just flat? Checking logs will confirm.
+                    # fallback to stringifying if structure unknown, but let's try 'mostRecentTrainingStatus'
+                    mrts = training_status_data.get("mostRecentTrainingStatus") 
+                    if isinstance(mrts, dict):
+                        training_status = mrts.get("status")
+            except Exception as e:
+                logger.warning(f"Could not fetch Training Status: {e}")
+
+            # 7. Hydration
+            hydration_ml = None
+            try:
+                hydration_data = self.client.get_hydration_data(today.isoformat())
+                logger.info(f"DEBUG: Garmin Hydration Data: {hydration_data}")
+                if isinstance(hydration_data, dict):
+                    hydration_ml = hydration_data.get("valueInML")
+            except Exception as e:
+                logger.warning(f"Could not fetch Hydration: {e}")
+
             # Extract fields
             # Inspect response structure carefully - using .get robustly
             
@@ -101,6 +137,9 @@ class GarminSync:
                 "Sleep_Score": sleep_data.get("dailySleepDTO", {}).get("sleepScoreFeedback", None), 
                 "Resting_HR": user_summary.get("restingHeartRate", None),
                 "Stress_Avg": user_summary.get("averageStressLevel", None),
+                "Garmin_Readiness": readiness_score,
+                "Garmin_Training_Status": training_status,
+                "Garmin_Hydration_ML": hydration_ml,
             }
             
             # HRV might be nested differently

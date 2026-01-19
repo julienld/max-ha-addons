@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.56
+- Fix Google Sheets Date formatting (enforced `USER_ENTERED`).
+- Add Garmin Training Readiness, Training Status, and Hydration sync.
+
 ## 1.0.55
 - Reordered Intervals sync to process Wellness data BEFORE Activities.
 - added logging to `get_activities`.
