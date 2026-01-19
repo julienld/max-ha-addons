@@ -1,7 +1,11 @@
 # Changelog
 
 ## 1.0.36
-- **Fix**: Improved Cronometer login robustness by adding `Origin` and `Referer` headers and refining the CSRF token extraction regex. Added detailed debug logging for login failures.
+- **Fix**: Critical fix for Cronometer login failure.
+  - Updated POST URL to remove trailing slash (`/login` vs `/login/`).
+  - Added `X-Requested-With: XMLHttpRequest` header to ensure JSON response.
+  - Added `userCode` field to login payload.
+  - Improved CSRF token extraction regex and added detailed debug logging.
 
 ## 1.0.35
 - **Fix**: Resolved Cronometer login failure by correctly extracting and submitting the `anticsrf` token from the login page.

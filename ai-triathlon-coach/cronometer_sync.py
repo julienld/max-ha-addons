@@ -8,7 +8,8 @@ logger = logging.getLogger(__name__)
 
 class CronometerSync:
     BASE_URL = "https://cronometer.com"
-    LOGIN_URL = "https://cronometer.com/login/"
+    LOGIN_URL = "https://cronometer.com/login/" # Page with the form
+    LOGIN_API_URL = "https://cronometer.com/login" # API endpoint for POST (no trailing slash)
     EXPORT_URL = "https://cronometer.com/export/Servings.csv"
 
     def __init__(self, username, password):
@@ -48,16 +49,20 @@ class CronometerSync:
             payload = {
                 "username": self.username,
                 "password": self.password,
-                "anticsrf": anticsrf
+                "anticsrf": anticsrf,
+                "userCode": ""
             }
             
             # Add headers that might be required
+            # X-Requested-With is critical for the server to treat this as an AJAX request and return JSON
             headers = {
                 "Origin": self.BASE_URL,
-                "Referer": self.LOGIN_URL
+                "Referer": self.LOGIN_URL,
+                "X-Requested-With": "XMLHttpRequest"
             }
             
-            login_resp = self.session.post(self.LOGIN_URL, data=payload, headers=headers)
+            # The JS posts to "/login", not "/login/"
+            login_resp = self.session.post(self.LOGIN_API_URL, data=payload, headers=headers)
             login_resp.raise_for_status()
             
             if "Display Name" in login_resp.text or "Logout" in login_resp.text or "dashboard" in login_resp.url:
