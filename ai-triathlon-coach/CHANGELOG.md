@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.69
+- **Fix**: Resolved `TypeError` during Garmin weight upload by ensuring timestamp is passed as an ISO formatted string.
+- **Removed**: Deleted the legacy `job_sync_weight` which fetched weight from Fitbit API (superseded by direct Aria upload).
+
 ## 1.0.68
 - **Fix**: Resolved `IndentationError` in `main.py` (missing `try` block wrapper for Aria handler).
 

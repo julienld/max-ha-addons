@@ -115,44 +115,7 @@ def job_sync_intervals(config):
     except Exception as e:
         logger.error(f"Intervals Sync Failed: {e}")
 
-def job_sync_weight(config):
-    logger.info("Starting Weight Sync (Fitbit -> Garmin)...")
-    try:
-        from fitbit_sync import FitbitSync
-        
-        if not config.get("fitbit_client_id") or not config.get("fitbit_client_secret"):
-            logger.warning("Fitbit credentials missing. Skipping weight sync.")
-            return
 
-        # 1. Init Fitbit
-        # We need a token file path. Add-on usually has persistence at /data
-        token_path = "/data/fitbit_token.json"
-        # For local testing fallback
-        if not os.path.exists("/data"):
-            token_path = "fitbit_token.json"
-            
-        fb = FitbitSync(
-            config["fitbit_client_id"], 
-            config["fitbit_client_secret"], 
-            config.get("fitbit_initial_refresh_token"),
-            token_file=token_path
-        )
-        
-        # 2. Get Weight
-        # 2. Get Weight & Hydration
-        # Weight
-        result_weight = fb.get_latest_weight() 
-        gs = GarminSync(config["garmin_username"], config["garmin_password"])
-
-        if result_weight:
-            weight_kg, timestamp = result_weight
-            logger.info(f"Retrieved weight from Fitbit: {weight_kg} kg at {timestamp}")
-            gs.add_body_composition(weight_kg, timestamp)
-        else:
-            logger.info("No recent weight found in Fitbit.")
-
-    except Exception as e:
-        logger.error(f"Weight Sync Failed: {e}")
 
 # --- WEB SERVER FOR FITBIT ARIA ---
 app = Flask(__name__)
@@ -207,7 +170,7 @@ def aria_upload():
                     logger.info("Syncing weight to Garmin...")
                     gs = GarminSync(config["garmin_username"], config["garmin_password"])
                     # Use current timestamp
-                    timestamp = datetime.now()
+                    timestamp = datetime.now().isoformat()
                     gs.add_body_composition(weight_kg, timestamp)
                     logger.info("Garmin Sync Successful.")
                 else:
@@ -254,14 +217,12 @@ def main():
     schedule.every(interval).minutes.do(job_sync_intervals, config)
     
     # Weight sync might not need to run every hour, but consistent with others is fine.
-    schedule.every(interval).minutes.do(job_sync_weight, config)
     schedule.every(interval).minutes.do(job_sync_cronometer, config)
     
     # Run once on startup
     logger.info("Running initial sync...")
     job_sync_garmin(config)
     job_sync_intervals(config)
-    job_sync_weight(config) # Assuming Fitbit is configured
     job_sync_cronometer(config)
     
     logger.info(f"Scheduler started. Heartbeat every {interval} minutes.")
