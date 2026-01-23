@@ -1,5 +1,5 @@
 name: "AI Triathlon Coach Data Bridge"
-version: "1.0.58"
+version: "1.0.59"
 slug: "ai_triathlon_coach"
 description: "Syncs fitness and nutrition data from Garmin, Intervals.icu, and LoseIt to Google Sheets for Gemini AI analysis."
 url: "https://github.com/max-ha-addons/ai-triathlon-coach"
@@ -7,6 +7,8 @@ startup: application
 boot: auto
 map:
   - config:rw
+ports:
+  8000/tcp: 8000
 options:
   garmin_username: ""
   garmin_password: ""

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.59
+- **Feature**: Added web server on port 8000 to receive Fitbit Aria scale data.
+- **Dependency**: Added Flask to support the web server.
+
 ## 1.0.58
 - Fixed Garmin Readiness and Training Status extraction logic (handling lists and nested keys).
 

@@ -5,6 +5,8 @@ import json
 import os
 import sys
 from datetime import datetime, timedelta
+import threading
+from flask import Flask, request
 from garmin_sync import GarminSync
 from intervals_sync import IntervalsSync
 
@@ -150,9 +152,45 @@ def job_sync_weight(config):
     except Exception as e:
         logger.error(f"Weight Sync Failed: {e}")
 
+# --- WEB SERVER FOR FITBIT ARIA ---
+app = Flask(__name__)
+
+@app.route('/scale/upload', methods=['POST'])
+def aria_upload():
+    """
+    Handle data upload from Fitbit Aria scale.
+    The scale sends data to fitbit.com/scale/upload.
+    We intercept this to get the weight.
+    """
+    try:
+        logger.info(f"Received Aria Data from {request.remote_addr}")
+        logger.info(f"Headers: {request.headers}")
+        logger.info(f"Form Data: {request.form}")
+        logger.info(f"Body: {request.get_data(as_text=True)}") # Verify what we get
+
+        # TODO: Parse the actual weight data here once we see the payload format.
+        # It is likely in request.form or a custom binary/proto format in body.
+        
+        # Determine success response. Aria likely expects a JSON or specific string.
+        # For now, return what a typical API might return.
+        return "OK", 200
+        
+    except Exception as e:
+        logger.error(f"Error handling Aria upload: {e}")
+        return "Error", 500
+
+def run_web_server():
+    logger.info("Starting Web Server on port 8000...")
+    # debug=False, use_reloader=False is important for threading
+    app.run(host='0.0.0.0', port=8000, debug=False, use_reloader=False)
+
 def main():
     logger.info("Initializing AI Triathlon Coach Data Bridge...")
     config = load_config()
+
+    # Start Web Server in Background Thread
+    server_thread = threading.Thread(target=run_web_server, daemon=True)
+    server_thread.start()
 
     # Visual Log Clear for Add-on users
     print("\n" * 50)
