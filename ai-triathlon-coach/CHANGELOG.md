@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.60
+- **Fix**: Added unbuffered output flag (`python -u`) to `run.sh` to ensure logs appear in real-time.
+
 ## 1.0.59
 - **Feature**: Added web server on port 8000 to receive Fitbit Aria scale data.
 - **Dependency**: Added Flask to support the web server.
