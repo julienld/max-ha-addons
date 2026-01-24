@@ -1,5 +1,5 @@
 name: "Gemini Station"
-version: "1.0.0"
+version: "1.0.1"
 slug: "gemini_station"
 description: "A persistent terminal for the Google Gemini CLI"
 url: "https://github.com/max-ha-addons"
