@@ -121,6 +121,24 @@ def job_sync_intervals(config):
 app = Flask(__name__)
 
 
+
+# --- CRC16-CCITT (XMODEM) Implementation ---
+def crc16_ccitt(data):
+    """
+    Calculate CRC-16-CCITT (XMODEM variant) for the given data.
+    Poly: 0x1021, Init: 0x0000, RefIn: False, RefOut: False, XorOut: 0x0000
+    """
+    crc = 0x0000
+    for byte in data:
+        crc ^= (byte << 8)
+        for _ in range(8):
+            if (crc & 0x8000):
+                crc = (crc << 1) ^ 0x1021
+            else:
+                crc = (crc << 1)
+        crc &= 0xFFFF
+    return crc
+
 @app.route('/scale/upload', methods=['POST'])
 def aria_upload():
     """
@@ -195,7 +213,54 @@ def aria_upload():
                 sync_thread.start()
                 logger.info(f"Started background thread for Garmin weight sync ({weight_kg}kg)")
 
-                return "OK", 200
+                # Construct SUCCESS Response for Aria
+                # Structure:
+                #   timestamp (4 bytes)
+                #   units (1 byte) - 2 = kg
+                #   status (1 byte) - 0x32 (configured)
+                #   unknown1 (1 byte) - 0x01
+                #   user_count (4 bytes) - 0 (no users being synced back)
+                #   update_available (4 bytes) - 0x03 (no)
+                #   unknown2 (4 bytes) - 3
+                #   unknown3 (4 bytes) - 0
+                
+                resp_ts = int(datetime.now().timestamp())
+                
+                # Build Body
+                # <I (Little Endian) for 4-byte fields? Protocol says uint32.
+                # Assuming Little Endian based on previous finding.
+                # struct.pack format:
+                # I (4), B (1), B (1), B (1), I (4), I (4), I (4), I (4)
+                
+                resp_body = struct.pack(
+                    '<IBBBIIII',
+                    resp_ts,        # current_timestamp
+                    2,              # units (kg)
+                    0x32,           # status (configured)
+                    0x01,           # unknown1
+                    0,              # user_count
+                    0x03,           # update_available (no)
+                    3,              # unknown2
+                    0               # unknown3
+                )
+                
+                # Calculate CRC
+                crc_val = crc16_ccitt(resp_body)
+                
+                # Build Envelope
+                # Body + CRC (2 bytes) + unknown2 (1 byte 0x66) + unknown3 (1 byte 0x00)
+                # CRC is usually Big Endian in network protocols? 
+                # Protocol.md says: `uint16 crc16`. 
+                # Let's try Little Endian first to match the rest, or strictly following simple pack.
+                # However, usually CRC is transmitted MSB first?
+                # Actually, Micolous helper `crc16xmodem` is standard.
+                # If the rest of the structs are LE, CRC might be too.
+                # Let's assume LE '<H' for CRC.
+                
+                resp_envelope = resp_body + struct.pack('<H', crc_val) + b'\x66\x00'
+                
+                logger.info(f"Sending binary success response ({len(resp_envelope)} bytes)")
+                return resp_envelope, 200
 
             except Exception as parse_e:
                 logger.error(f"Error parsing/processing weight: {parse_e}")

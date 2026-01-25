@@ -1,9 +1,15 @@
 # Changelog
 
+## 1.0.71
+- **Maintenance**: Version bump to force re-deployment and ensure binary protocol changes are active.
+
 ## 1.0.70
 - **Fix**: Resolved `504 Gateway Time-out` on `/scale/upload` endpoint by moving Garmin synchronization to a background thread.
 - **Improved**: Removed verbose JSON debug logs from Garmin and Intervals sync modules to reduce log noise.
 - **Feature**: Added User ID logging (from URL or binary packet) for Aria scale uploads.
+
+## 1.0.70
+- **Feature**: Implemented proper binary response protocol (with CRC16) for Fitbit Aria scale to acknowledge data receipt and prevent retries.
 
 ## 1.0.69
 - **Fix**: Resolved `TypeError` during Garmin weight upload by ensuring timestamp is passed as an ISO formatted string.
