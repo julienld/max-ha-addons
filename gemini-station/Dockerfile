@@ -12,7 +12,8 @@ RUN apk add --no-cache \
     git \
     bash \
     curl \
-    nano
+    nano \
+    build-base
 
 # Install Google Gemini CLI globally
 RUN npm config set strict-ssl false && \
