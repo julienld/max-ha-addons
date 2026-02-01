@@ -16,6 +16,10 @@ RUN apk add --no-cache \
 
 # Install Google Gemini CLI globally
 RUN npm config set strict-ssl false && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-factor 2 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
     npm install -g @google/gemini-cli \
     --no-audit \
     --no-fund \
